@@ -91,7 +91,7 @@ export default function Dashboard({ repoUrl, repoData, darkMode, toggleDarkMode,
 
       {/* Layout */}
       <div className="flex-1 flex overflow-hidden">
-        <Sidebar activeView={activeView} onViewChange={setActiveView} onBack={onBack} />
+        <Sidebar activeView={activeView} onViewChange={setActiveView} onBack={onBack} repoData={repoData} />
 
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* View header */}

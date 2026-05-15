@@ -15,6 +15,7 @@ interface SidebarProps {
   activeView: DashboardView;
   onViewChange: (view: DashboardView) => void;
   onBack: () => void;
+  repoData: any;
 }
 
 const navItems: { id: DashboardView; label: string; key: string }[] = [
@@ -27,7 +28,8 @@ const navItems: { id: DashboardView; label: string; key: string }[] = [
   { id: "chat",          label: "ask ai  ✦",       key: "c" },
 ];
 
-export default function Sidebar({ activeView, onViewChange, onBack }: SidebarProps) {
+export default function Sidebar({ activeView, onViewChange, onBack, repoData }: SidebarProps) {
+  const repo = repoData || mockRepo;
   return (
     <aside
       className="w-52 flex-shrink-0 flex flex-col border-r border-zinc-800 bg-zinc-950"
@@ -46,12 +48,12 @@ export default function Sidebar({ activeView, onViewChange, onBack }: SidebarPro
           className="w-full text-left p-2.5 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all group"
         >
           <div className="text-xs text-zinc-500 mb-1.5 truncate" style={{ fontWeight: 500 }}>
-            {mockRepo.fullName}
+            {repo.fullName}
           </div>
           <div className="flex items-center gap-3 text-xs text-zinc-700">
-            <span>main</span>
+            <span>{repo.branch || 'main'}</span>
             <span>·</span>
-            <span>★ {(mockRepo.stars / 1000).toFixed(1)}k</span>
+            <span>★ {(repo.stars / 1000).toFixed(1)}k</span>
           </div>
           <div className="text-xs text-zinc-800 mt-1 group-hover:text-zinc-600 transition-colors">
             switch →
@@ -97,10 +99,10 @@ export default function Sidebar({ activeView, onViewChange, onBack }: SidebarPro
         <div className="px-4 py-3 border-t border-zinc-800">
           <div className="flex items-center justify-between text-xs mb-1.5">
             <span className="text-zinc-700">health</span>
-            <span className="text-zinc-400" style={{ fontWeight: 600 }}>87/100</span>
+            <span className="text-zinc-400" style={{ fontWeight: 600 }}>{repo.score}/100</span>
           </div>
           <div className="h-px bg-zinc-800">
-            <div className="h-full bg-zinc-500" style={{ width: "87%" }} />
+            <div className="h-full bg-zinc-500" style={{ width: `${repo.score}%` }} />
           </div>
         </div>
       </div>

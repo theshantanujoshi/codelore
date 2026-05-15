@@ -15,7 +15,7 @@ interface SidebarProps {
   activeView: DashboardView;
   onViewChange: (view: DashboardView) => void;
   onBack: () => void;
-  repoData: any;
+  repoData: RepoData | null;
 }
 
 const navItems: { id: DashboardView; label: string; key: string }[] = [

@@ -10,6 +10,7 @@ import OnboardingGuide from "./views/OnboardingGuide";
 import AIChat from "./views/AIChat";
 import Settings from "./views/Settings";
 import { RepoData } from "../services/api";
+import { mockRepo } from "../data/mockData";
 
 interface DashboardProps {
   repoUrl: string;

@@ -1,5 +1,6 @@
 import { Terminal } from "lucide-react";
 import { mockRepo } from "../data/mockData";
+import { RepoData } from "../services/api";
 
 export type DashboardView =
   | "overview"

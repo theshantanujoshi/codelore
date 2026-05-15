@@ -79,7 +79,7 @@ export default function Overview({ repoData, onNavigate }: OverviewProps) {
 
           <div className="flex-shrink-0 text-right border border-zinc-800 px-5 py-4">
             <div className="text-3xl text-zinc-200 mb-0.5" style={{ fontWeight: 700 }}>
-              {mockRepo.score}
+              {repo.score}
             </div>
             <div className="text-xs text-zinc-600">health score</div>
             <div className="text-xs text-zinc-800">/ 100</div>

@@ -8,19 +8,19 @@ function CommandBlock({ commands }: { commands: string[] }) {
   return (
     <div className="mt-3 border border-zinc-800">
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-zinc-800 bg-zinc-900/60">
-        <span className="text-[15px] text-zinc-400">terminal</span>
+        <span className="text-xs text-zinc-700">terminal</span>
         <button
           onClick={() => { navigator.clipboard.writeText(commands.join("\n")); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-          className="text-[15px] text-zinc-400 hover:text-zinc-100 transition-colors flex items-center gap-1"
+          className="text-xs text-zinc-700 hover:text-zinc-400 transition-colors flex items-center gap-1"
         >
-          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
           {copied ? "copied" : "copy"}
         </button>
       </div>
       <div className="p-3 space-y-1">
         {commands.map((cmd, i) => (
-          <div key={i} className={`text-[15px] ${cmd.startsWith("#") ? "text-zinc-400" : "text-zinc-100"}`}>
-            {!cmd.startsWith("#") && <span className="text-zinc-300 mr-1.5">$</span>}
+          <div key={i} className={`text-xs ${cmd.startsWith("#") ? "text-zinc-700" : "text-zinc-400"}`}>
+            {!cmd.startsWith("#") && <span className="text-zinc-600 mr-1.5">$</span>}
             {cmd}
           </div>
         ))}
@@ -47,23 +47,23 @@ export default function OnboardingGuide() {
       <div className="max-w-xl mx-auto px-8 py-8">
 
         {/* Header */}
-        <div className="text-[15px] text-zinc-400 mb-1">{`// ai-generated · tailored to antigravity/codelore`}</div>
-        <div className="text-[15px] text-zinc-300 mb-8">
+        <div className="text-xs text-zinc-700 mb-1">{`// ai-generated · tailored to antigravity/codelore`}</div>
+        <div className="text-xs text-zinc-600 mb-8">
           step-by-step setup instructions. not a generic README.
         </div>
 
         {/* Progress */}
         <div className="border border-zinc-800 px-4 py-4 mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[15px] text-zinc-300">setup progress</span>
-            <span className="text-[15px] text-zinc-200">{completedSteps.size}/{mockOnboardingSteps.length} steps</span>
+            <span className="text-xs text-zinc-600">setup progress</span>
+            <span className="text-xs text-zinc-500">{completedSteps.size}/{mockOnboardingSteps.length} steps</span>
           </div>
           <div className="h-px bg-zinc-800 mb-1.5">
             <div className="h-full bg-zinc-400 transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
           <div className="flex justify-between">
-            <span className="text-[15px] text-zinc-400">{progress}%</span>
-            {progress === 100 && <span className="text-[15px] text-zinc-100">ready to run</span>}
+            <span className="text-xs text-zinc-700">{progress}%</span>
+            {progress === 100 && <span className="text-xs text-zinc-400">ready to run</span>}
           </div>
         </div>
 
@@ -84,30 +84,30 @@ export default function OnboardingGuide() {
                     className="flex-shrink-0 mt-0.5 hover:opacity-80 transition-opacity"
                   >
                     {isCompleted ? (
-                      <Check className="w-5 h-5 text-zinc-100" />
+                      <Check className="w-4 h-4 text-zinc-400" />
                     ) : (
-                      <Circle className="w-5 h-5 text-zinc-400" />
+                      <Circle className="w-4 h-4 text-zinc-700" />
                     )}
                   </button>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[15px] text-zinc-400">{String(step.id).padStart(2, "0")}</span>
+                      <span className="text-xs text-zinc-700">{String(step.id).padStart(2, "0")}</span>
                       <h3
-                        className={`text-[15px] ${isCompleted ? "text-zinc-300 line-through" : "text-white"}`}
+                        className={`text-xs ${isCompleted ? "text-zinc-600 line-through" : "text-zinc-300"}`}
                         style={{ fontWeight: 500 }}
                       >
                         {step.title}
                       </h3>
                     </div>
-                    <p className="text-[15px] text-zinc-400 mt-0.5 leading-relaxed">{step.description}</p>
+                    <p className="text-xs text-zinc-700 mt-0.5 leading-relaxed">{step.description}</p>
                   </div>
 
                   <button
                     onClick={() => toggleExpand(step.id)}
-                    className="flex-shrink-0 text-zinc-400 hover:text-zinc-100 transition-colors"
+                    className="flex-shrink-0 text-zinc-700 hover:text-zinc-400 transition-colors"
                   >
-                    {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                   </button>
                 </div>
 
@@ -121,15 +121,15 @@ export default function OnboardingGuide() {
                           if (isEnvVar) {
                             const [varName, ...rest] = note.split("—");
                             return (
-                              <div key={i} className="flex items-start gap-2 text-[15px] border border-zinc-800 px-3 py-2">
-                                <span className="text-zinc-100 flex-shrink-0" style={{ fontWeight: 500 }}>{varName.trim()}</span>
-                                <span className="text-zinc-400 leading-relaxed">— {rest.join("—")}</span>
+                              <div key={i} className="flex items-start gap-2 text-xs border border-zinc-800 px-3 py-2">
+                                <span className="text-zinc-400 flex-shrink-0" style={{ fontWeight: 500 }}>{varName.trim()}</span>
+                                <span className="text-zinc-700 leading-relaxed">— {rest.join("—")}</span>
                               </div>
                             );
                           }
                           return (
-                             <div key={i} className="flex items-start gap-2 text-[15px] text-zinc-400">
-                              <span className="text-zinc-500 flex-shrink-0 mt-0.5">→</span>
+                            <div key={i} className="flex items-start gap-2 text-xs text-zinc-700">
+                              <span className="text-zinc-800 flex-shrink-0 mt-0.5">→</span>
                               <span className="leading-relaxed">{note}</span>
                             </div>
                           );
@@ -145,8 +145,8 @@ export default function OnboardingGuide() {
 
         {/* Tip */}
         <div className="mt-8 border border-zinc-800 px-4 py-4">
-          <div className="text-[15px] text-zinc-400 mb-2">{`// pro tip`}</div>
-          <p className="text-[15px] text-zinc-300 leading-relaxed">
+          <div className="text-xs text-zinc-700 mb-2">{`// pro tip`}</div>
+          <p className="text-xs text-zinc-600 leading-relaxed">
             after running <code className="px-1 py-0.5 border border-zinc-800 bg-zinc-900">npm run dev:all</code>, the backend will act as a proxy. you can trace the ai analysis requests in the server console, not just the browser network tab.
           </p>
         </div>

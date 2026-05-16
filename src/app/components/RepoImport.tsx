@@ -6,15 +6,10 @@ interface RepoImportProps {
   onBack: () => void;
 }
 
-const demoRepos = [
-  { name: "vercel/next-commerce", desc: "Next.js e-commerce starter with Shopify integration", stars: "12.8k", lang: "TypeScript" },
-  { name: "shadcn-ui/ui", desc: "Beautifully designed Tailwind components built with Radix UI", stars: "68.4k", lang: "TypeScript" },
-  { name: "calcom/cal.com", desc: "Open source scheduling infrastructure for everyone", stars: "31.1k", lang: "TypeScript" },
-  { name: "supabase/supabase", desc: "Open source Firebase alternative with Postgres", stars: "67.2k", lang: "TypeScript" },
-];
+
 
 export default function RepoImport({ onAnalyze, onBack }: RepoImportProps) {
-  const [url, setUrl] = useState("https://github.com/vercel/next-commerce");
+  const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"url" | "connect">("url");
 
@@ -138,34 +133,7 @@ export default function RepoImport({ onAnalyze, onBack }: RepoImportProps) {
             </div>
           )}
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-zinc-800" />
-            <span className="text-xs text-zinc-700">// or try a demo</span>
-            <div className="flex-1 h-px bg-zinc-800" />
-          </div>
 
-          {/* Demo repos */}
-          <div className="space-y-px border border-zinc-800">
-            {demoRepos.map((repo) => (
-              <button
-                key={repo.name}
-                onClick={() => { setUrl(`https://github.com/${repo.name}`); onAnalyze(`https://github.com/${repo.name}`); }}
-                className="w-full flex items-center gap-4 px-4 py-3 bg-zinc-950 hover:bg-zinc-900 transition-colors text-left border-b border-zinc-800 last:border-b-0 group"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-zinc-300 mb-0.5 truncate" style={{ fontWeight: 500 }}>
-                    {repo.name}
-                  </div>
-                  <div className="text-xs text-zinc-600 truncate">{repo.desc}</div>
-                </div>
-                <div className="flex items-center gap-3 flex-shrink-0 text-xs text-zinc-700">
-                  <span>★ {repo.stars}</span>
-                  <span className="text-zinc-600 group-hover:text-zinc-400 transition-colors">→</span>
-                </div>
-              </button>
-            ))}
-          </div>
 
           {/* Privacy note */}
           <div className="mt-6 text-xs text-zinc-700 leading-relaxed">

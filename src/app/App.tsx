@@ -10,7 +10,7 @@ export type View = "landing" | "import" | "processing" | "dashboard";
 
 export default function App() {
   const [view, setView] = useState<View>("landing");
-  const [repoUrl, setRepoUrl] = useState("https://github.com/vercel/next-commerce");
+  const [repoUrl, setRepoUrl] = useState("");
   const [repoData, setRepoData] = useState<RepoData | null>(null);
   const [darkMode, setDarkMode] = useState(true);
 

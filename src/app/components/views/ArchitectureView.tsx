@@ -24,10 +24,10 @@ function buildPath(from: ArchNode, to: ArchNode): string {
 }
 
 const layerLabels = [
-  { y: 62,  label: "pages / routes" },
-  { y: 187, label: "ui components" },
-  { y: 312, label: "api / server actions" },
-  { y: 437, label: "libraries / external" },
+  { y: 70,  label: "pages / routes" },
+  { y: 210, label: "ui components" },
+  { y: 350, label: "api / server actions" },
+  { y: 490, label: "libraries / external" },
 ];
 
 export default function ArchitectureView() {

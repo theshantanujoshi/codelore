@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = '/api';
 
 export interface RepoData {
   name: string;
@@ -32,4 +32,22 @@ export const analyzeRepo = async (url: string): Promise<RepoData> => {
   }
 
   return response.json();
+};
+
+export const chatWithAI = async (message: string, context: any): Promise<string> => {
+  const response = await fetch(`${API_BASE}/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message, context }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`${error.error}${error.details ? ': ' + error.details : ''}`);
+  }
+
+  const data = await response.json();
+  return data.response;
 };

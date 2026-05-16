@@ -6,7 +6,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "dev:all": "concurrently \"npm run dev\" \"cd server && npm run dev\""
+    "dev:all": "concurrently \"npm run dev\" \"cd server && npm run dev\"",
+    "start:all": "npm run build && cd server && npm run build && npm start"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

@@ -15,12 +15,7 @@ const features = [
   { prefix: "06", title: "ask anything", description: "chat with the codebase. ask where auth lives, how to add a feature, or what a file does." },
 ];
 
-const demoRepos = [
-  { name: "vercel/next-commerce", stars: "12.8k", desc: "Next.js e-commerce starter" },
-  { name: "shadcn-ui/ui", stars: "68.4k", desc: "Component library" },
-  { name: "supabase/supabase", stars: "67.2k", desc: "Firebase alternative" },
-  { name: "calcom/cal.com", stars: "31.1k", desc: "Scheduling infrastructure" },
-];
+
 
 export default function Landing({ onGetStarted }: LandingProps) {
   const [hoveredRepo, setHoveredRepo] = useState<string | null>(null);
@@ -126,31 +121,7 @@ export default function Landing({ onGetStarted }: LandingProps) {
         </div>
       </section>
 
-      {/* Demo repos */}
-      <section className="px-6 pb-16 max-w-4xl mx-auto">
-        <div className="text-xs text-zinc-700 uppercase tracking-widest mb-4">
-          # try with popular repos
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {demoRepos.map((repo) => (
-            <button
-              key={repo.name}
-              onClick={onGetStarted}
-              onMouseEnter={() => setHoveredRepo(repo.name)}
-              onMouseLeave={() => setHoveredRepo(null)}
-              className={`text-left p-3 border text-xs transition-all ${
-                hoveredRepo === repo.name
-                  ? "border-zinc-600 bg-zinc-900"
-                  : "border-zinc-800 hover:border-zinc-700"
-              }`}
-            >
-              <div className="text-zinc-200 mb-1 truncate" style={{ fontWeight: 500 }}>{repo.name}</div>
-              <div className="text-zinc-600">{repo.desc}</div>
-              <div className="text-zinc-700 mt-1">★ {repo.stars}</div>
-            </button>
-          ))}
-        </div>
-      </section>
+
 
       {/* Features */}
       <section id="features" className="px-6 pb-20 border-t border-zinc-800">

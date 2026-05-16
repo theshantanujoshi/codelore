@@ -40,6 +40,25 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
+function InlineMarkdown({ text }: { text: string }) {
+  // Handle inline bold **text**
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <strong key={i} className="text-zinc-100" style={{ fontWeight: 600 }}>
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+}
+
 function MessageContent({ content }: { content: string }) {
   const parts = content.split(/(```[\s\S]*?```)/g);
   return (
@@ -50,24 +69,38 @@ function MessageContent({ content }: { content: string }) {
         }
         const lines = part.split("\n");
         return (
-          <div key={i} className="text-xs text-zinc-400 leading-relaxed">
+          <div key={i} className="text-[11px] text-zinc-400 leading-relaxed space-y-1">
             {lines.map((line, j) => {
-              if (line.startsWith("**") && line.includes("**")) {
-                const ps = line.split(/\*\*(.*?)\*\*/g);
+              const trimmed = line.trim();
+              
+              // Headers
+              if (trimmed.startsWith("### ")) {
                 return (
-                  <p key={j} className={j > 0 ? "mt-1.5" : ""}>
-                    {ps.map((p2, k) => k % 2 === 1 ? <strong key={k} className="text-zinc-200" style={{ fontWeight: 500 }}>{p2}</strong> : <span key={k}>{p2}</span>)}
-                  </p>
+                  <h3 key={j} className="text-zinc-200 mt-6 mb-2 flex items-center gap-2 first:mt-0 uppercase tracking-wider" style={{ fontWeight: 700, fontSize: '10px' }}>
+                    <span className="w-1 h-3 bg-zinc-700 inline-block" />
+                    {trimmed.slice(4)}
+                  </h3>
                 );
               }
-              if (line.startsWith("- ")) return (
-                <div key={j} className="flex items-start gap-2 mt-1">
-                  <span className="text-zinc-700 flex-shrink-0">·</span>
-                  <span>{line.slice(2)}</span>
-                </div>
+
+              // List items (supports - and *)
+              if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+                return (
+                  <div key={j} className="flex items-start gap-2.5 ml-1 mt-1">
+                    <span className="text-zinc-700 flex-shrink-0 mt-1">·</span>
+                    <span><InlineMarkdown text={trimmed.slice(2)} /></span>
+                  </div>
+                );
+              }
+
+              if (trimmed === "") return <div key={j} className="h-2" />;
+
+              // Regular text with inline markdown
+              return (
+                <p key={j} className="leading-relaxed">
+                  <InlineMarkdown text={line} />
+                </p>
               );
-              if (line.trim() === "") return <div key={j} className="h-1" />;
-              return <p key={j}>{line}</p>;
             })}
           </div>
         );
@@ -76,7 +109,7 @@ function MessageContent({ content }: { content: string }) {
   );
 }
 
-import { RepoData } from "../../services/api";
+import { RepoData, chatWithAI } from "../../services/api";
 
 interface AIChatProps {
   repoData: RepoData | null;
@@ -115,22 +148,32 @@ export default function AIChat({ repoData }: AIChatProps) {
     }, 25);
   };
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const q = (text || input).trim();
     if (!q || isStreaming) return;
+    
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: q };
     const aiId = (Date.now() + 1).toString();
     const aiMsg: Message = { id: aiId, role: "assistant", content: "", isStreaming: true };
+    
     setMessages((prev) => [...prev, userMsg, aiMsg]);
     setInput("");
     setIsStreaming(true);
-    const matched = aiQAPairs.find((p) =>
-      p.question.toLowerCase().includes(q.toLowerCase().split(" ")[0]) ||
-      q.toLowerCase().includes(p.question.toLowerCase().split(" ")[2])
-    );
-    const response = matched?.answer ||
-      `based on my analysis of **${repoName}**:\n\nit contains ${repoData?.files} files and ${repoData?.lines} lines of code. the primary language is ${repoData?.primaryLanguage}.\n\nfor your question about "${q}", i'd need a deeper AI integration to give a precise answer. currently, i can see the file structure but not the full content of every function.`;
-    setTimeout(() => streamResponse(response, aiId), 300);
+
+    try {
+      // Use real AI if available
+      const response = await chatWithAI(q, {
+        repoName,
+        files: repoData?.files,
+        lines: repoData?.lines,
+        language: repoData?.primaryLanguage,
+        // We could also send snippets of the file tree here if needed
+      });
+      streamResponse(response, aiId);
+    } catch (error: any) {
+      console.error("Chat Error:", error);
+      streamResponse(`error: ${error.message}`, aiId);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -176,11 +219,20 @@ export default function AIChat({ repoData }: AIChatProps) {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="border border-zinc-800 px-4 py-3.5 bg-zinc-900/30">
-                        <MessageContent content={msg.content} />
-                        {msg.isStreaming && (
-                          <span className="inline-block w-0.5 h-3.5 bg-zinc-400 ml-0.5" style={{ animation: "pulse 1s infinite" }} />
-                        )}
+                      <div className="border border-zinc-800 bg-zinc-900/30 overflow-hidden">
+                        <div className="flex items-center justify-between px-4 py-1.5 border-b border-zinc-800 bg-zinc-900/50">
+                          <span className="text-[10px] text-zinc-500 uppercase tracking-widest">ai-orchestrator response</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
+                            <span className="text-[10px] text-zinc-600 uppercase tracking-widest">grounded in codebase</span>
+                          </div>
+                        </div>
+                        <div className="px-4 py-4">
+                          <MessageContent content={msg.content} />
+                          {msg.isStreaming && (
+                            <span className="inline-block w-0.5 h-3.5 bg-zinc-400 ml-0.5" style={{ animation: "pulse 1s infinite" }} />
+                          )}
+                        </div>
                       </div>
                       {!msg.isStreaming && msg.confidence && (
                         <div className="flex items-center gap-4">

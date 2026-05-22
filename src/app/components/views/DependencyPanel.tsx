@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronUp, ChevronDown, ExternalLink } from "lucide-react";
 import { mockDependencies, Dependency } from "../../data/mockData";
+import { RepoData } from "../../services/api";
 
 type SortKey = "name" | "size" | "type" | "vulnerabilities";
 type FilterType = "all" | "production" | "development";
@@ -11,7 +12,12 @@ function parseSize(size: string): number {
   return parseFloat(m[1]) * (m[2] === "MB" ? 1024 : 1);
 }
 
-export default function DependencyPanel() {
+interface DependencyPanelProps {
+  repoData: RepoData | null;
+}
+
+export default function DependencyPanel({ repoData }: DependencyPanelProps) {
+  const dependencies = repoData?.dependencies || mockDependencies;
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [sortKey, setSortKey] = useState<SortKey>("name");
@@ -23,7 +29,7 @@ export default function DependencyPanel() {
     else { setSortKey(key); setSortDir("asc"); }
   };
 
-  const filtered = mockDependencies
+  const filtered = dependencies
     .filter((d) => {
       const ms = d.name.toLowerCase().includes(search.toLowerCase()) || d.description.toLowerCase().includes(search.toLowerCase());
       const mt = filterType === "all" || d.type === filterType;
@@ -38,10 +44,10 @@ export default function DependencyPanel() {
       return sortDir === "asc" ? cmp : -cmp;
     });
 
-  const prodCount = mockDependencies.filter((d) => d.type === "production").length;
-  const devCount = mockDependencies.filter((d) => d.type === "development").length;
-  const vulnCount = mockDependencies.filter((d) => d.vulnerabilities > 0).length;
-  const totalSize = mockDependencies.filter((d) => d.type === "production").reduce((a, d) => a + parseSize(d.size), 0);
+  const prodCount = dependencies.filter((d) => d.type === "production").length;
+  const devCount = dependencies.filter((d) => d.type === "development").length;
+  const vulnCount = dependencies.filter((d) => d.vulnerabilities && d.vulnerabilities > 0).length;
+  const totalSize = dependencies.filter((d) => d.type === "production").reduce((a, d) => a + parseSize(d.size || "0 KB"), 0);
 
   const SortIcon = ({ col }: { col: SortKey }) =>
     sortKey === col ? (sortDir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />) : <ChevronUp className="w-3 h-3 text-zinc-800" />;
@@ -72,17 +78,18 @@ export default function DependencyPanel() {
         <div className="border border-zinc-800 p-5 mb-8">
           <div className="text-xs text-zinc-700 mb-4"># largest production packages</div>
           <div className="space-y-2.5">
-            {mockDependencies
+            {dependencies
               .filter((d) => d.type === "production")
               .sort((a, b) => parseSize(b.size) - parseSize(a.size))
               .slice(0, 5)
               .map((dep) => {
-                const pct = Math.min(100, (parseSize(dep.size) / 4200) * 100);
+                const sizeVal = parseSize(dep.size || "0 KB");
+                const pct = Math.min(100, (sizeVal / (totalSize || 4200)) * 100);
                 return (
                   <div key={dep.name}>
                     <div className="flex justify-between mb-1">
                       <span className="text-xs text-zinc-500">{dep.name}</span>
-                      <span className="text-xs text-zinc-600">{dep.size}</span>
+                      <span className="text-xs text-zinc-600">{dep.size || "unknown"}</span>
                     </div>
                     <div className="h-px bg-zinc-800">
                       <div className="h-full bg-zinc-500 transition-all duration-500" style={{ width: `${pct}%` }} />
@@ -156,10 +163,10 @@ export default function DependencyPanel() {
                     <span className="text-xs text-zinc-600">{dep.type === "production" ? "prod" : "dev"}</span>
                   </div>
                   <div className="w-20 text-right">
-                    <span className="text-xs text-zinc-600">{dep.size}</span>
+                    <span className="text-xs text-zinc-600">{dep.size || "unknown"}</span>
                   </div>
                   <div className="w-24 text-right">
-                    {dep.vulnerabilities > 0 ? (
+                    {(dep.vulnerabilities ?? 0) > 0 ? (
                       <span className="text-xs text-zinc-400">{dep.vulnerabilities} vuln</span>
                     ) : (
                       <span className="text-xs text-zinc-800">clean</span>
@@ -168,15 +175,15 @@ export default function DependencyPanel() {
                 </button>
                 {isExpanded && (
                   <div className="px-4 pb-4 pt-2 border-t border-zinc-800 bg-zinc-900/20 ml-0">
-                    <p className="text-xs text-zinc-600 leading-relaxed mb-3">{dep.description}</p>
+                    <p className="text-xs text-zinc-600 leading-relaxed mb-3">{dep.description || "No description available."}</p>
                     <div className="flex items-center gap-6">
                       <div>
                         <span className="text-xs text-zinc-700">license: </span>
-                        <span className="text-xs text-zinc-500">{dep.license}</span>
+                        <span className="text-xs text-zinc-500">{dep.license || "unknown"}</span>
                       </div>
                       <div>
                         <span className="text-xs text-zinc-700">weekly downloads: </span>
-                        <span className="text-xs text-zinc-500">{dep.weekly_downloads}</span>
+                        <span className="text-xs text-zinc-500">{dep.weekly_downloads || "unknown"}</span>
                       </div>
                       <a
                         href={`https://www.npmjs.com/package/${dep.name}`}

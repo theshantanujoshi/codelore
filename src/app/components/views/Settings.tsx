@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, Check, Save, Trash2, Download, RefreshCw } from "lucide-react";
+import { RepoData } from "../../services/api";
 
 function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -36,7 +37,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default function Settings() {
+interface SettingsProps {
+  repoData: RepoData | null;
+}
+
+export default function Settings({ repoData }: SettingsProps) {
   const [showKey, setShowKey] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [saved, setSaved] = useState(false);
@@ -49,14 +54,23 @@ export default function Settings() {
 
   const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
 
+  const handleExportJSON = () => {
+    if (!repoData) return;
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(repoData, null, 2));
+    const a = document.createElement('a');
+    a.href = dataStr;
+    a.download = `${repoData.name}-analysis.json`;
+    a.click();
+  };
+
   return (
     <div className="flex-1 overflow-y-auto" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
       <div className="max-w-xl mx-auto px-8 py-8">
 
         <Section title="api configuration">
           <div className="px-4 py-4 border-b border-zinc-800">
-            <div className="text-xs text-zinc-600 mb-1">openai api key</div>
-            <p className="text-xs text-zinc-800 mb-3">used for codebase analysis and Q&A. never logged.</p>
+            <div className="text-xs text-zinc-600 mb-1">gemini api key</div>
+            <p className="text-xs text-zinc-800 mb-3">used for codebase analysis and Q&A. configured in server/.env for security.</p>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
@@ -92,9 +106,9 @@ export default function Settings() {
           </Row>
           <Row label="model" desc="ai model used for analysis.">
             <select className="text-xs px-2 py-1.5 bg-zinc-900 border border-zinc-700 text-zinc-400 focus:outline-none focus:border-zinc-500 transition-colors">
-              <option>gpt-4o</option>
-              <option>gpt-4o mini</option>
-              <option>gpt-4 turbo</option>
+              <option>gemini-2.0-flash</option>
+              <option>gemini-1.5-pro</option>
+              <option>gemini-1.5-flash</option>
             </select>
           </Row>
         </Section>
@@ -151,11 +165,15 @@ export default function Settings() {
         <Section title="data">
           <Row label="export analysis" desc="download the full report as JSON or PDF.">
             <div className="flex gap-2">
-              <button className="flex items-center gap-1 text-xs px-3 py-1.5 border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-colors">
+              <button 
+                onClick={handleExportJSON}
+                disabled={!repoData}
+                className="flex items-center gap-1 text-xs px-3 py-1.5 border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <Download className="w-3 h-3" />
                 JSON
               </button>
-              <button className="flex items-center gap-1 text-xs px-3 py-1.5 border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-colors">
+              <button disabled className="flex items-center gap-1 text-xs px-3 py-1.5 border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <Download className="w-3 h-3" />
                 PDF
               </button>

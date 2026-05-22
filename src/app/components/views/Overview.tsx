@@ -32,7 +32,7 @@ export default function Overview({ repoData, onNavigate }: OverviewProps) {
   })).sort((a, b) => b.percent - a.percent).slice(0, 4) : [
     { name: "TypeScript", percent: 0 },
   ];
-  const scoreCategories = [
+  const scoreCategories = repoData?.scoreCategories || [
     { label: "Architecture",     score: repo.score },
     { label: "Code Quality",     score: Math.max(0, repo.score - 5) },
     { label: "Security",         score: Math.max(0, repo.score - 10) },
@@ -140,10 +140,10 @@ export default function Overview({ repoData, onNavigate }: OverviewProps) {
         {/* Insights */}
         <div>
           <div className="text-xs text-zinc-700 uppercase tracking-widest mb-3">
-            # ai insights · {mockInsights.length} findings
+            # ai insights · {repoData?.insights ? repoData.insights.length : mockInsights.length} findings
           </div>
           <div className="border border-zinc-800 divide-y divide-zinc-800">
-            {mockInsights.map((insight) => (
+            {(repoData?.insights || mockInsights).map((insight) => (
               <div key={insight.id} className="flex items-start gap-3 px-4 py-3 hover:bg-zinc-900 transition-colors">
                 <span className={`text-xs flex-shrink-0 mt-0.5 ${
                   insight.severity === "success" ? "text-zinc-400" :

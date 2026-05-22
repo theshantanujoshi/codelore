@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Circle, Copy, ChevronDown, ChevronRight } from "lucide-react";
 import { mockOnboardingSteps } from "../../data/mockData";
+import { RepoData } from "../../services/api";
 
 function CommandBlock({ commands }: { commands: string[] }) {
   const [copied, setCopied] = useState(false);
@@ -29,7 +30,12 @@ function CommandBlock({ commands }: { commands: string[] }) {
   );
 }
 
-export default function OnboardingGuide() {
+interface OnboardingGuideProps {
+  repoData: RepoData | null;
+}
+
+export default function OnboardingGuide({ repoData }: OnboardingGuideProps) {
+  const steps = repoData?.onboarding || mockOnboardingSteps;
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set([1, 2, 3]));
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([1, 2]));
 
@@ -40,7 +46,7 @@ export default function OnboardingGuide() {
     setCompletedSteps((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
 
-  const progress = Math.round((completedSteps.size / mockOnboardingSteps.length) * 100);
+  const progress = Math.round((completedSteps.size / steps.length) * 100) || 0;
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -56,7 +62,7 @@ export default function OnboardingGuide() {
         <div className="border border-zinc-800 px-4 py-4 mb-8">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-zinc-600">setup progress</span>
-            <span className="text-xs text-zinc-500">{completedSteps.size}/{mockOnboardingSteps.length} steps</span>
+            <span className="text-xs text-zinc-500">{completedSteps.size}/{steps.length} steps</span>
           </div>
           <div className="h-px bg-zinc-800 mb-1.5">
             <div className="h-full bg-zinc-400 transition-all duration-500" style={{ width: `${progress}%` }} />
@@ -69,7 +75,7 @@ export default function OnboardingGuide() {
 
         {/* Steps */}
         <div className="space-y-2">
-          {mockOnboardingSteps.map((step) => {
+          {steps.map((step) => {
             const isExpanded = expandedSteps.has(step.id);
             const isCompleted = completedSteps.has(step.id);
 

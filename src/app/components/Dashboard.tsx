@@ -105,13 +105,13 @@ export default function Dashboard({ repoUrl, repoData, darkMode, toggleDarkMode,
           )}
 
           {activeView === "overview"      && <Overview repoData={repoData} onNavigate={(v) => setActiveView(v as DashboardView)} />}
-          {activeView === "architecture"  && <ArchitectureView />}
+          {activeView === "architecture"  && <ArchitectureView repoData={repoData} />}
           {activeView === "files"         && <FileExplorer repoData={repoData} />}
-          {activeView === "execution"     && <ExecutionFlow />}
-          {activeView === "dependencies"  && <DependencyPanel />}
-          {activeView === "onboarding"    && <OnboardingGuide />}
+          {activeView === "execution"     && <ExecutionFlow repoData={repoData} />}
+          {activeView === "dependencies"  && <DependencyPanel repoData={repoData} />}
+          {activeView === "onboarding"    && <OnboardingGuide repoData={repoData} />}
           {activeView === "chat"          && <AIChat repoData={repoData} />}
-          {activeView === "settings"      && <Settings />}
+          {activeView === "settings"      && <Settings repoData={repoData} />}
         </main>
       </div>
     </div>

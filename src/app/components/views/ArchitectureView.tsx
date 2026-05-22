@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
-import { archNodes, archEdges, ArchNode } from "../../data/mockData";
+import { archNodes as mockNodes, archEdges as mockEdges, ArchNode } from "../../data/mockData";
+import { RepoData } from "../../services/api";
 
 const typeLabel: Record<string, string> = {
   page:     "page",
@@ -30,9 +31,18 @@ const layerLabels = [
   { y: 490, label: "libraries / external" },
 ];
 
-export default function ArchitectureView() {
+interface ArchitectureViewProps {
+  repoData: RepoData | null;
+}
+
+export default function ArchitectureView({ repoData }: ArchitectureViewProps) {
+  const archNodes = repoData?.architecture?.nodes || mockNodes || [];
+  const archEdges = repoData?.architecture?.edges || mockEdges || [];
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+
+  const maxNodeX = Math.max(...archNodes.map((n) => n.x + n.width), 640);
+  const canvasWidth = maxNodeX + 40;
 
   const selectedNodeData = selectedNode ? archNodes.find((n) => n.id === selectedNode) : null;
   const connectedEdges = selectedNode
@@ -68,9 +78,9 @@ export default function ArchitectureView() {
         <div className="flex-1 overflow-auto bg-zinc-950">
           <div
             className="relative"
-            style={{ transform: `scale(${zoom})`, transformOrigin: "top left", width: 680, height: 530, minWidth: 680 }}
+            style={{ transform: `scale(${zoom})`, transformOrigin: "top left", width: canvasWidth, height: 530, minWidth: Math.max(canvasWidth, 680) }}
           >
-            <svg width={680} height={530} viewBox="0 0 680 530" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+            <svg width={canvasWidth} height={530} viewBox={`0 0 ${canvasWidth} 530`} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
               <defs>
                 <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
                   <path d="M0,0 L8,4 L0,8 Z" fill="#3f3f46" />
@@ -83,7 +93,7 @@ export default function ArchitectureView() {
               {/* Layer strips */}
               {layerLabels.map((layer, i) => (
                 <g key={i}>
-                  <rect x={4} y={layer.y - 38} width={672} height={72} rx={0} fill="rgba(255,255,255,0.01)" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+                  <rect x={4} y={layer.y - 38} width={canvasWidth - 8} height={72} rx={0} fill="rgba(255,255,255,0.01)" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
                   <text x={12} y={layer.y - 22} fill="#3f3f46" fontSize={8} fontFamily="'JetBrains Mono', monospace" letterSpacing={1}>
                     {layer.label.toUpperCase()}
                   </text>

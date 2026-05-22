@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite",
-    "dev:all": "concurrently \"npm run dev\" \"cd server && npm run dev\"",
+    "dev:frontend": "vite",
+    "dev": "concurrently \"npm run dev:frontend\" \"cd server && npm run dev\"",
     "start:all": "npm run build && cd server && npm run build && npm start"
   },
   "dependencies": {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { mockExecutionFlow, ExecutionStep } from "../../data/mockData";
+import { RepoData } from "../../services/api";
 
 const stepTypeLabel: Record<string, string> = {
   route:     "route",
@@ -71,7 +72,12 @@ function StepCard({ step, index, isExpanded, onToggle, totalSteps }: StepCardPro
   );
 }
 
-export default function ExecutionFlow() {
+interface ExecutionFlowProps {
+  repoData: RepoData | null;
+}
+
+export default function ExecutionFlow({ repoData }: ExecutionFlowProps) {
+  const executionFlow = repoData?.executionFlow || mockExecutionFlow;
   const [activeScenario, setActiveScenario] = useState("analyze");
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set(["1", "2"]));
 
@@ -115,7 +121,7 @@ export default function ExecutionFlow() {
             <span>·</span>
             <span>1 git instance</span>
             <span>·</span>
-            <span>{mockExecutionFlow.length} modules</span>
+            <span>{executionFlow.length} modules</span>
           </div>
         </div>
 
@@ -123,8 +129,8 @@ export default function ExecutionFlow() {
         <div className="border border-zinc-800 px-4 py-3 mb-6">
           <div className="text-xs text-zinc-700 mb-2">timeline</div>
           <div className="flex h-5 gap-px">
-            {mockExecutionFlow.map((step, i) => {
-              const w = 100 / mockExecutionFlow.length;
+            {executionFlow.map((step, i) => {
+              const w = 100 / executionFlow.length;
               const brightness = 60 - (i * 5);
               return (
                 <div
@@ -145,12 +151,12 @@ export default function ExecutionFlow() {
 
         {/* Steps */}
         <div className="space-y-2">
-          {mockExecutionFlow.map((step, i) => (
+          {executionFlow.map((step, i) => (
             <StepCard
               key={step.id}
               step={step}
               index={i}
-              totalSteps={mockExecutionFlow.length}
+              totalSteps={executionFlow.length}
               isExpanded={expandedSteps.has(step.id)}
               onToggle={() => toggleStep(step.id)}
             />
@@ -162,7 +168,7 @@ export default function ExecutionFlow() {
           <div className="text-[10px] text-zinc-700 mb-3 uppercase tracking-widest"># summary</div>
           <div className="grid grid-cols-3 gap-4 text-center">
             {[
-              { v: mockExecutionFlow.length, l: "execution modules" },
+              { v: executionFlow.length, l: "execution modules" },
               { v: totalDuration, l: "total latency" },
               { v: "1",      l: "git instance" },
             ].map((s) => (

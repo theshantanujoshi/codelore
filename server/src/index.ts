@@ -10,12 +10,16 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectRoot = path.join(__dirname, '../..');
+const distPath = path.join(projectRoot, 'dist');
 
 dotenv.config();
 
+import os from 'os';
 const app = express();
 const port = process.env.PORT || 3001;
-const reposDir = path.join(__dirname, '../data/repos');
+const reposDir = process.env.VERCEL ? path.join(os.tmpdir(), 'repos') : path.join(__dirname, '../data/repos');
+const useViteMiddleware = process.env.CODELORE_VITE_MIDDLEWARE === '1';
 
 // Initialize Gemini or prepare for OpenRouter
 const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
@@ -27,11 +31,24 @@ const genAI = (!isOpenRouter && apiKey)
 const gitService = new GitService(reposDir);
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
-// Serve frontend static files if they exist
-const distPath = path.join(__dirname, '../../dist');
-app.use(express.static(distPath));
+let vite: any = null;
+if (useViteMiddleware) {
+  const { createServer } = await import('vite');
+  vite = await createServer({
+    root: projectRoot,
+    appType: 'custom',
+    server: {
+      middlewareMode: true,
+      watch: {
+        ignored: ['**/server/data/**']
+      }
+    }
+  });
+} else {
+  app.use(express.static(distPath));
+}
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'codelore backend is active', ai: !!genAI });
@@ -290,11 +307,29 @@ Rules:
   }
 });
 
+if (vite) {
+  app.use(vite.middlewares);
+}
+
 // Fallback for SPA routing
-app.get('*', (req, res) => {
+app.get('*', async (req, res) => {
   if (req.path.startsWith('/api')) {
-    return;
+    return res.status(404).json({ error: 'Not found' });
   }
+
+  if (vite) {
+    try {
+      const indexHtmlPath = path.join(projectRoot, 'index.html');
+      const template = fs.readFileSync(indexHtmlPath, 'utf-8');
+      const html = await vite.transformIndexHtml(req.originalUrl, template);
+      return res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+    } catch (error: any) {
+      vite.ssrFixStacktrace(error);
+      console.error('[server]: Failed to render Vite index.html', error);
+      return res.status(500).send(error.message);
+    }
+  }
+
   res.sendFile(path.join(distPath, 'index.html'), (err) => {
     if (err) {
       if (!req.path.startsWith('/api')) {
@@ -304,6 +339,10 @@ app.get('*', (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`[server]: Server is running at http://localhost:${port}`);
+  });
+}
+
+export default app;

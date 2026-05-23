@@ -6,7 +6,8 @@ import { RepoData } from "../../services/api";
 type SortKey = "name" | "size" | "type" | "vulnerabilities";
 type FilterType = "all" | "production" | "development";
 
-function parseSize(size: string): number {
+function parseSize(size?: string): number {
+  if (!size) return 0;
   const m = size.match(/^([\d.]+)\s*(KB|MB)/);
   if (!m) return 0;
   return parseFloat(m[1]) * (m[2] === "MB" ? 1024 : 1);
@@ -31,7 +32,8 @@ export default function DependencyPanel({ repoData }: DependencyPanelProps) {
 
   const filtered = dependencies
     .filter((d) => {
-      const ms = d.name.toLowerCase().includes(search.toLowerCase()) || d.description.toLowerCase().includes(search.toLowerCase());
+      const desc = d.description || "";
+      const ms = d.name.toLowerCase().includes(search.toLowerCase()) || desc.toLowerCase().includes(search.toLowerCase());
       const mt = filterType === "all" || d.type === filterType;
       return ms && mt;
     })

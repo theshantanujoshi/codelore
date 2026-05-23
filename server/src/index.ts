@@ -214,7 +214,10 @@ Return this EXACT JSON structure:
     "edges": [
       {"from": "<node id>", "to": "<node id>"}
     ]
-  }
+  },
+  "fileMetadata": [
+    {"path": "<file path>", "description": "<1-2 sentences explaining what this file does>", "complexity": "<low|medium|high>"}
+  ]
 }
 
 Rules:
@@ -225,6 +228,7 @@ Rules:
 - You MUST assign their Y coordinates strictly based on their type: page=55, component=195, api=335, util=475, external=475.
 - Distribute their X coordinates sequentially (e.g. 60, 220, 380, 540, 700) and NEVER assign the same X and Y to two different nodes.
 - Generate edges showing real data flow between modules
+- Generate fileMetadata for the 10-15 most important files, providing a short description and complexity rating.
 - All data must be specific to THIS repository, not generic`;
         if (isOpenRouter) {
           const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -257,7 +261,22 @@ Rules:
         if (Array.isArray(aiData.onboarding)) aiOnboarding = aiData.onboarding;
         if (aiData.architecture?.nodes) aiArchitecture = aiData.architecture;
         
-        console.log(`[server]: AI generated ${aiInsights?.length || 0} insights, ${aiExecutionFlow?.length || 0} flow steps, ${aiOnboarding?.length || 0} onboarding steps, ${aiArchitecture?.nodes?.length || 0} arch nodes.`);
+        if (Array.isArray(aiData.fileMetadata)) {
+          const metaMap = new Map(aiData.fileMetadata.map((m: any) => [m.path, m]));
+          const enrichTree = (nodes: any[]) => {
+            for (const node of nodes) {
+              if (metaMap.has(node.path)) {
+                const meta = metaMap.get(node.path) as any;
+                node.description = meta.description;
+                node.complexity = meta.complexity;
+              }
+              if (node.children) enrichTree(node.children);
+            }
+          };
+          enrichTree(metrics.tree);
+        }
+        
+        console.log(`[server]: AI generated ${aiInsights?.length || 0} insights, ${aiExecutionFlow?.length || 0} flow steps, ${aiOnboarding?.length || 0} onboarding steps, ${aiArchitecture?.nodes?.length || 0} arch nodes, ${aiData.fileMetadata?.length || 0} file metas.`);
       } catch (e: any) {
         console.warn(`[server]: AI generation failed:`, e.message);
       }

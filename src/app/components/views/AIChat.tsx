@@ -164,10 +164,16 @@ export default function AIChat({ repoData }: AIChatProps) {
       // Use real AI if available
       const response = await chatWithAI(q, {
         repoName,
+        description: repoData?.description,
         files: repoData?.files,
         lines: repoData?.lines,
         language: repoData?.primaryLanguage,
-        // We could also send snippets of the file tree here if needed
+        languages: repoData?.languages,
+        insights: repoData?.insights,
+        dependencies: repoData?.dependencies?.map(d => `${d.name}@${d.version}`),
+        architecture: repoData?.architecture,
+        executionFlow: repoData?.executionFlow,
+        fileTree: repoData?.fileTree,
       });
       streamResponse(response, aiId);
     } catch (error: any) {

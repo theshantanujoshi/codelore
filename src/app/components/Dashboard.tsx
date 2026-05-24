@@ -29,7 +29,7 @@ const getMeta = (activeView: DashboardView, repoData: RepoData | null) => {
     execution:    { title: "execution flow",  sub: "request lifecycle trace" },
     dependencies: { title: "dependencies",    sub: "audit packages" },
     onboarding:   { title: "onboarding",      sub: "ai-generated setup guide" },
-    chat:         { title: "ask ai",          sub: "chat with your codebase" },
+    chat:         { title: "ask cl.ai",      sub: "chat with your codebase" },
     settings:     { title: "settings",        sub: "configure preferences and API keys" },
   };
   return metas[activeView];
@@ -49,10 +49,15 @@ export default function Dashboard({ repoUrl, repoData, darkMode, toggleDarkMode,
       {/* Topbar */}
       <header className="flex-shrink-0 flex items-center justify-between px-4 h-11 border-b border-zinc-800 bg-zinc-950">
         <div className="flex items-center gap-2 text-xs text-zinc-600">
-          <Terminal className="w-3.5 h-3.5" />
-          <span>codelore</span>
+          <button
+            onClick={() => { window.location.hash = "#/"; }}
+            className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors cursor-pointer"
+          >
+            <Terminal className="w-3.5 h-3.5" />
+            <span className="font-semibold text-zinc-400 hover:text-zinc-200">codelore</span>
+          </button>
           <span className="text-zinc-800">/</span>
-          <span className="text-zinc-500">{repoData?.fullName || mockRepo.fullName}</span>
+          <span className="text-zinc-500">{repoData?.name || mockRepo.name}</span>
           <span className="text-zinc-800">/</span>
           <span className="text-zinc-400">{meta.title}</span>
         </div>
@@ -78,7 +83,7 @@ export default function Dashboard({ repoUrl, repoData, darkMode, toggleDarkMode,
             }`}
             style={{ fontWeight: activeView === "chat" ? 500 : 400 }}
           >
-            ask ai ✦
+            ask cl.ai ✦
           </button>
 
           <button

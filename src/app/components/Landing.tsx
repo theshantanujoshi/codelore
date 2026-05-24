@@ -36,7 +36,7 @@ export default function Landing({ onGetStarted }: LandingProps) {
           <Terminal className="w-4 h-4 text-zinc-500" />
           <span style={{ fontWeight: 500 }}>codelore</span>
           <span className="text-zinc-700">~</span>
-          <span className="text-zinc-600 text-xs">ai</span>
+          <span className="text-zinc-600 text-xs">cl.ai</span>
         </motion.button>
         <div className="flex items-center gap-6">
           <motion.button
@@ -90,18 +90,11 @@ export default function Landing({ onGetStarted }: LandingProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={onGetStarted}
-            className="flex items-center gap-2 px-5 py-2.5 bg-zinc-100 text-zinc-900 text-sm hover:bg-white transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-zinc-100 text-zinc-900 text-sm hover:bg-white transition-colors cursor-pointer"
             style={{ fontWeight: 600 }}
           >
-            analyze a repo
+            get started
             <ChevronRight className="w-4 h-4" />
-          </button>
-          <button
-            onClick={onGetStarted}
-            className="flex items-center gap-2 px-5 py-2.5 border border-zinc-700 text-zinc-400 text-sm hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
-            style={{ fontWeight: 500 }}
-          >
-            try demo
           </button>
         </div>
 
@@ -192,10 +185,10 @@ export default function Landing({ onGetStarted }: LandingProps) {
           </p>
           <button
             onClick={onGetStarted}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-100 text-zinc-900 text-sm hover:bg-white transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-100 text-zinc-900 text-sm hover:bg-white transition-colors cursor-pointer"
             style={{ fontWeight: 600 }}
           >
-            analyze a repository
+            get started
             <ChevronRight className="w-4 h-4" />
           </button>
 
@@ -214,7 +207,18 @@ export default function Landing({ onGetStarted }: LandingProps) {
             <Terminal className="w-3.5 h-3.5" />
             <span>codelore ai</span>
           </div>
-          <span>© 2026</span>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://theshantanujoshi.github.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-zinc-400 transition-colors"
+            >
+              shantanu joshi
+            </a>
+            <span>·</span>
+            <span>© 2026</span>
+          </div>
         </div>
       </footer>
     </div>

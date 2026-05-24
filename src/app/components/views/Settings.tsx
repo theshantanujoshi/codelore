@@ -106,9 +106,9 @@ export default function Settings({ repoData }: SettingsProps) {
           </Row>
           <Row label="model" desc="ai model used for analysis.">
             <select className="text-xs px-2 py-1.5 bg-zinc-900 border border-zinc-700 text-zinc-400 focus:outline-none focus:border-zinc-500 transition-colors">
-              <option>gemini-2.0-flash</option>
-              <option>gemini-1.5-pro</option>
-              <option>gemini-1.5-flash</option>
+              <option>nvidia/llama-3.1-nemotron-ultra-253b-v1</option>
+              <option>nvidia/llama-3.1-nemotron-70b-instruct</option>
+              <option>google/gemini-2.5-flash</option>
             </select>
           </Row>
         </Section>
@@ -187,7 +187,7 @@ export default function Settings({ repoData }: SettingsProps) {
           </Row>
         </Section>
 
-        <div className="text-xs text-zinc-800 text-center">codelore ai v1.0.0</div>
+        <div className="text-xs text-zinc-800 text-center">codelore cl.ai v1.0.0</div>
       </div>
     </div>
   );

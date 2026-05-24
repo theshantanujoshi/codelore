@@ -1,8 +1,8 @@
 export const mockRepo = {
   name: "codelore",
-  owner: "antigravity",
-  fullName: "antigravity/codelore",
-  url: "https://github.com/antigravity/codelore",
+  owner: "theshantanujoshi",
+  fullName: "theshantanujoshi/codelore",
+  url: "https://github.com/theshantanujoshi/codelore",
   branch: "main",
   description:
     "a high-performance codebase architecture visualizer and ai-powered documentation engine.",

@@ -6,8 +6,6 @@ interface RepoImportProps {
   onBack: () => void;
 }
 
-
-
 export default function RepoImport({ onAnalyze, onBack }: RepoImportProps) {
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -37,12 +35,15 @@ export default function RepoImport({ onAnalyze, onBack }: RepoImportProps) {
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div className="flex items-center gap-2 text-zinc-500 text-sm">
+        <button
+          onClick={() => { window.location.hash = "#/"; }}
+          className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 text-sm cursor-pointer transition-colors"
+        >
           <Terminal className="w-3.5 h-3.5" />
-          <span>codelore</span>
-          <span className="text-zinc-700">/</span>
-          <span>analyze</span>
-        </div>
+          <span className="font-semibold text-zinc-400 hover:text-zinc-200">codelore</span>
+        </button>
+        <span className="text-zinc-700 text-xs">/</span>
+        <span className="text-zinc-500 text-xs">analyze</span>
       </div>
 
       <div className="flex-1 flex items-start justify-center pt-16 px-6 pb-16">

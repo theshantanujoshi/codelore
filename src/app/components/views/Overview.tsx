@@ -181,7 +181,7 @@ export default function Overview({ repoData, onNavigate }: OverviewProps) {
               { label: "execution flow",  view: "execution",      desc: "request lifecycle" },
               { label: "dependencies",    view: "dependencies",   desc: "package audit" },
               { label: "onboarding",      view: "onboarding",     desc: "setup guide" },
-              { label: "ask ai",          view: "chat",           desc: "chat with codebase" },
+              { label: "ask cl.ai",       view: "chat",           desc: "chat with codebase" },
             ].map((item) => (
               <button
                 key={item.view}

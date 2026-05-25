@@ -51,7 +51,7 @@ export default function GetStartedSelect({ onSelectOption, onBack }: GetStartedS
               className="group relative flex flex-col justify-between p-6 bg-zinc-900/20 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50 active:bg-zinc-900 transition-all text-left rounded-sm cursor-pointer min-h-[180px] overflow-hidden"
             >
               {/* Visual corner highlight */}
-              <div className="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               <div>
                 <div className="w-8 h-8 rounded-sm bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-4 group-hover:border-zinc-700 transition-colors">
@@ -107,7 +107,7 @@ export default function GetStartedSelect({ onSelectOption, onBack }: GetStartedS
               className="group relative flex flex-col justify-between p-6 bg-zinc-900/20 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50 active:bg-zinc-900 transition-all text-left rounded-sm cursor-pointer min-h-[180px] overflow-hidden"
             >
               {/* Visual corner highlight */}
-              <div className="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div>
                 <div className="w-8 h-8 rounded-sm bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-4 group-hover:border-zinc-700 transition-colors">

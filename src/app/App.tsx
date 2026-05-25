@@ -4,17 +4,19 @@ import Landing from "./components/Landing";
 import RepoImport from "./components/RepoImport";
 import DemoSelect from "./components/DemoSelect";
 import GetStartedSelect from "./components/GetStartedSelect";
+import CliInstall from "./components/CliInstall";
 import Processing from "./components/Processing";
 import Dashboard from "./components/Dashboard";
 import { RepoData } from "./services/api";
 
-export type View = "landing" | "get-started" | "import" | "demo" | "processing" | "dashboard";
+export type View = "landing" | "get-started" | "import" | "demo" | "cli-install" | "processing" | "dashboard";
 
 const viewToHash: Record<View, string> = {
   "landing": "#/",
   "get-started": "#/start",
   "import": "#/import",
   "demo": "#/demo",
+  "cli-install": "#/cli-install",
   "processing": "#/processing",
   "dashboard": "#/dashboard"
 };
@@ -25,6 +27,7 @@ const hashToView: Record<string, View> = {
   "#/start": "get-started",
   "#/import": "import",
   "#/demo": "demo",
+  "#/cli-install": "cli-install",
   "#/processing": "processing",
   "#/dashboard": "dashboard"
 };
@@ -120,8 +123,10 @@ export default function App() {
               onSelectOption={(option) => {
                 if (option === "demo") {
                   navigateTo("demo");
-                } else {
+                } else if (option === "custom") {
                   navigateTo("import");
+                } else if (option === "cli") {
+                  navigateTo("cli-install");
                 }
               }}
               onBack={() => navigateTo("landing")}
@@ -164,6 +169,19 @@ export default function App() {
               }}
               onBack={() => navigateTo("get-started")}
             />
+          </motion.div>
+        )}
+        {view === "cli-install" && (
+          <motion.div
+            key="cli-install"
+            initial="initial"
+            animate="enter"
+            exit="exit"
+            variants={variants}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="size-full"
+          >
+            <CliInstall onBack={() => navigateTo("get-started")} />
           </motion.div>
         )}
         {view === "processing" && (

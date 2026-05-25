@@ -4,10 +4,11 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && cd server && npm install && npm run build",
     "dev:frontend": "vite",
     "dev:split": "concurrently \"npm run dev:frontend\" \"cd server && npm run dev\"",
     "dev": "cd server && npm run dev:one-port",
+    "start": "node server/dist/index.js",
     "start:all": "npm run build && cd server && npm run build && npm start"
   },
   "dependencies": {

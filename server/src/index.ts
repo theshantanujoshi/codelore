@@ -62,7 +62,9 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
-    const prompt = `You are Codelore AI, a elite software architect and codebase expert.
+    const prompt = `You are Codelore AI, an elite software architect and codebase expert.
+    
+    IMPORTANT: Keep your responses extremely concise and small to save tokens, unless the user explicitly asks for a long explanation.
     
     Format your response strictly using this structure for maximum technical clarity:
     
@@ -94,6 +96,7 @@ app.post('/api/chat', async (req, res) => {
         headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "google/gemini-2.0-flash-001",
+          max_tokens: 800,
           messages: [{ role: "user", content: prompt }]
         })
       });
@@ -101,7 +104,10 @@ app.post('/api/chat', async (req, res) => {
       if (orData.error) throw new Error(orData.error.message || 'OpenRouter API Error');
       text = orData.choices[0].message.content;
     } else {
-      const model = genAI!.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const model = genAI!.getGenerativeModel({ 
+        model: "gemini-2.0-flash",
+        generationConfig: { maxOutputTokens: 800 }
+      });
       const result = await model.generateContent(prompt);
       text = result.response.text();
     }
@@ -221,14 +227,15 @@ Return this EXACT JSON structure:
 }
 
 Rules:
-- Generate 3-5 insights based on actual code patterns you see
-- Generate 3-6 execution flow steps showing how a typical request flows through this specific codebase
-- Generate 2-4 onboarding steps with real commands based on the package.json and README
-- Generate 6-12 architecture nodes showing the actual modules. 
+- Keep all descriptions, titles, and explanations extremely brief to save tokens.
+- Generate 2-3 insights based on actual code patterns you see
+- Generate 2-3 execution flow steps showing how a typical request flows through this specific codebase
+- Generate 1-2 onboarding steps with real commands based on the package.json and README
+- Generate 5-8 architecture nodes showing the actual modules. 
 - You MUST assign their Y coordinates strictly based on their type: page=55, component=195, api=335, util=475, external=475.
 - Distribute their X coordinates sequentially (e.g. 60, 220, 380, 540, 700) and NEVER assign the same X and Y to two different nodes.
 - Generate edges showing real data flow between modules
-- Generate fileMetadata for the 10-15 most important files, providing a short description and complexity rating.
+- Generate fileMetadata for the 5-8 most important files, providing a short description and complexity rating.
 - All data must be specific to THIS repository, not generic`;
         if (isOpenRouter) {
           const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -237,6 +244,7 @@ Rules:
             body: JSON.stringify({
               model: "google/gemini-2.0-flash-001",
               response_format: { type: "json_object" },
+              max_tokens: 1500,
               messages: [{ role: "user", content: megaPrompt }]
             })
           });
@@ -246,7 +254,10 @@ Rules:
         } else {
           const model = genAI!.getGenerativeModel({ 
             model: "gemini-2.0-flash",
-            generationConfig: { responseMimeType: "application/json" }
+            generationConfig: { 
+              responseMimeType: "application/json",
+              maxOutputTokens: 1500
+            }
           });
           const result = await model.generateContent(megaPrompt);
           text = result.response.text();

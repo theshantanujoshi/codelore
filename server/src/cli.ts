@@ -115,6 +115,8 @@ async function run() {
 
       const prompt = `You are an expert codebase analyzer. Analyze this repository structure and return a single JSON object.
 
+IMPORTANT: Keep all descriptions and titles extremely brief to save tokens.
+
 Folder Name: ${folderName}
 Languages: ${JSON.stringify(metrics.languages)}
 Total Files: ${metrics.totalFiles}
@@ -128,10 +130,10 @@ Return this EXACT JSON structure:
 {
   "score": <number 0-100>,
   "insights": [
-    {"category": "<architecture|quality|security|performance|maintainability>", "severity": "<success|warning|error|info>", "title": "<short title>", "description": "<1-2 sentences>"}
+    {"category": "<architecture|quality|security|performance|maintainability>", "severity": "<success|warning|error|info>", "title": "<short title>", "description": "<1-2 sentences max>"}
   ],
   "onboarding": [
-    {"id": 1, "title": "<step title>", "description": "<what to do>", "commands": ["<cmd1>"]}
+    {"id": 1, "title": "<short step title>", "description": "<brief instruction>", "commands": ["<cmd1>"]}
   ]
 }
 
@@ -145,6 +147,7 @@ Ensure valid JSON syntax. Do not output anything other than JSON.`;
           body: JSON.stringify({
             model: "google/gemini-2.0-flash-001",
             response_format: { type: "json_object" },
+            max_tokens: 800,
             messages: [{ role: "user", content: prompt }]
           })
         });
@@ -155,7 +158,10 @@ Ensure valid JSON syntax. Do not output anything other than JSON.`;
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
           model: "gemini-2.0-flash",
-          generationConfig: { responseMimeType: "application/json" }
+          generationConfig: { 
+            responseMimeType: "application/json",
+            maxOutputTokens: 800 
+          }
         });
         const result = await model.generateContent(prompt);
         text = result.response.text();

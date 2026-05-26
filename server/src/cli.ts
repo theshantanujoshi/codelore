@@ -208,6 +208,7 @@ Ensure valid JSON syntax. Do not output anything other than JSON.`;
   console.log(` - Modules: ${metrics.architecture.nodes.map((n: any) => n.label).join(', ')}`);
   console.log(` - Links/Data Flows: ${metrics.architecture.edges.length} connections\n`);
   
+  console.log(`${colors.dim}Like my work? Star the repo and follow along for more!${colors.reset}`);
   console.log(`${colors.green}${colors.bold}Done.${colors.reset}`);
 }
 

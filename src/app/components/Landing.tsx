@@ -202,10 +202,13 @@ export default function Landing({ onGetStarted }: LandingProps) {
 
       {/* Footer */}
       <footer className="border-t border-zinc-800 px-6 py-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between text-xs text-zinc-700">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-700 gap-4">
           <div className="flex items-center gap-2">
             <Terminal className="w-3.5 h-3.5" />
             <span>codelore ai</span>
+          </div>
+          <div className="text-zinc-500">
+            like my work? <a href="https://github.com/theshantanujoshi/codelore" target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white transition-colors underline">star the repo</a> and follow along for more
           </div>
           <div className="flex items-center gap-3">
             <a

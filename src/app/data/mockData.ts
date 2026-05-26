@@ -13,6 +13,7 @@ export const mockRepo = {
   stars: 120,
   lastAnalyzed: "Just now",
   score: 98,
+  isLargeRepo: true,
 };
 
 export interface FileNode {

@@ -83,6 +83,7 @@ export interface RepoData {
   architecture?: { nodes: ArchNode[]; edges: ArchEdge[] };
   executionFlow?: ExecutionStep[];
   onboarding?: OnboardingStep[];
+  isLargeRepo?: boolean;
 }
 
 export const analyzeRepo = async (url: string): Promise<RepoData> => {

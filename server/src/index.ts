@@ -316,6 +316,7 @@ Rules:
       architecture: aiArchitecture || metrics.architecture,
       executionFlow: aiExecutionFlow,
       onboarding: aiOnboarding,
+      isLargeRepo: metrics.totalFiles > 500 || metrics.totalLines > 50000,
     };
 
     // Clean up repo

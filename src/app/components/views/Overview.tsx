@@ -53,6 +53,18 @@ export default function Overview({ repoData, onNavigate }: OverviewProps) {
       style={{ fontFamily: "'JetBrains Mono', monospace" }}
     >
       <div className="max-w-3xl mx-auto px-8 py-8 space-y-10">
+        
+        {repo.isLargeRepo && (
+          <div className="border border-amber-900/50 bg-amber-950/20 px-4 py-3 mb-6 flex items-start gap-3 text-sm">
+            <span className="text-amber-500 mt-0.5">⚠️</span>
+            <div>
+              <p className="text-amber-500 font-medium mb-1">Large Repository Detected</p>
+              <p className="text-amber-600/80 leading-relaxed">
+                This repository is exceptionally large. For the most accurate breakdown and AI insights, we highly recommend analyzing it locally using our CLI: <code className="bg-amber-900/40 px-1 py-0.5 rounded text-amber-400">npx codelore .</code>
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Repo header */}
         <div className="flex items-start justify-between">

@@ -46,7 +46,30 @@ export class Analyzer {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     const nodes: FileNode[] = [];
 
-    const textExtensions = new Set(['.ts', '.tsx', '.js', '.jsx', '.json', '.css', '.html', '.md', '.py', '.go', '.rs', '.txt', '.yml', '.yaml', '.mjs', '.cjs']);
+    const textExtensions = new Set([
+      '.ts', '.tsx', '.mts', '.cts',
+      '.js', '.jsx', '.mjs', '.cjs',
+      '.py', '.pyw',
+      '.java', '.class',
+      '.cpp', '.cc', '.cxx', '.c', '.h', '.hpp', '.hh',
+      '.cs',
+      '.go',
+      '.rs',
+      '.rb', '.rbw',
+      '.php',
+      '.swift',
+      '.kt', '.kts',
+      '.scala',
+      '.sh', '.bash', '.zsh',
+      '.ps1', '.psm1',
+      '.sql',
+      '.html', '.htm', '.xhtml',
+      '.css', '.scss', '.sass', '.less',
+      '.md', '.markdown', '.txt',
+      '.json',
+      '.yml', '.yaml',
+      '.xml'
+    ]);
 
     for (const entry of entries) {
       if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.next') continue;
@@ -67,8 +90,10 @@ export class Analyzer {
         const stats = fs.statSync(fullPath);
         const ext = path.extname(entry.name).toLowerCase();
         
+        const isNoExtTextFile = ['dockerfile', 'makefile', 'gemfile', 'pipfile'].includes(entry.name.toLowerCase());
+        
         let lines = 0;
-        if (textExtensions.has(ext)) {
+        if (textExtensions.has(ext) || isNoExtTextFile) {
           try {
             const content = fs.readFileSync(fullPath, 'utf-8');
             lines = content.split('\n').length;
@@ -94,18 +119,61 @@ export class Analyzer {
 
   private detectLanguage(filename: string): string {
     const ext = path.extname(filename).toLowerCase();
+    const name = filename.toLowerCase();
+    
+    if (name === 'dockerfile') return 'Docker';
+    if (name === 'makefile') return 'Makefile';
+    if (name === 'gemfile') return 'Ruby';
+    if (name === 'pipfile') return 'Python';
+    
     const map: Record<string, string> = {
       '.ts': 'TypeScript',
       '.tsx': 'TypeScript',
+      '.mts': 'TypeScript',
+      '.cts': 'TypeScript',
       '.js': 'JavaScript',
       '.jsx': 'JavaScript',
-      '.json': 'JSON',
-      '.css': 'CSS',
-      '.html': 'HTML',
-      '.md': 'Markdown',
+      '.mjs': 'JavaScript',
+      '.cjs': 'JavaScript',
       '.py': 'Python',
+      '.pyw': 'Python',
+      '.java': 'Java',
+      '.cs': 'C#',
+      '.cpp': 'C++',
+      '.cc': 'C++',
+      '.cxx': 'C++',
+      '.c': 'C',
+      '.h': 'C/C++ Header',
+      '.hpp': 'C/C++ Header',
+      '.hh': 'C/C++ Header',
       '.go': 'Go',
       '.rs': 'Rust',
+      '.rb': 'Ruby',
+      '.php': 'PHP',
+      '.swift': 'Swift',
+      '.kt': 'Kotlin',
+      '.kts': 'Kotlin',
+      '.scala': 'Scala',
+      '.sh': 'Shell',
+      '.bash': 'Shell',
+      '.zsh': 'Shell',
+      '.ps1': 'PowerShell',
+      '.psm1': 'PowerShell',
+      '.sql': 'SQL',
+      '.html': 'HTML',
+      '.htm': 'HTML',
+      '.xhtml': 'HTML',
+      '.css': 'CSS',
+      '.scss': 'CSS',
+      '.sass': 'CSS',
+      '.less': 'CSS',
+      '.md': 'Markdown',
+      '.markdown': 'Markdown',
+      '.json': 'JSON',
+      '.yml': 'YAML',
+      '.yaml': 'YAML',
+      '.xml': 'XML',
+      '.txt': 'Text',
     };
     return map[ext] || 'Text';
   }
@@ -285,10 +353,26 @@ export class Analyzer {
     const traverse = (nodes: FileNode[]) => {
       for (const node of nodes) {
         if (node.type === 'file') {
-          totalFiles++;
-          totalLines += node.lines || 0;
-          const lang = node.language || 'Other';
-          languages[lang] = (languages[lang] || 0) + (node.lines || 0);
+          const name = node.name.toLowerCase();
+          const isLockFile = name.endsWith('lock.json') || 
+                             name.endsWith('lock.yaml') || 
+                             name === 'yarn.lock' || 
+                             name === 'cargo.lock' || 
+                             name === 'gemfile.lock' || 
+                             name === 'pnpm-lock.yaml' ||
+                             name === 'composer.lock';
+          const isMinified = name.endsWith('.min.js') || name.endsWith('.min.css');
+          const isMapFile = name.endsWith('.map');
+
+          if (!isLockFile && !isMinified && !isMapFile) {
+            totalFiles++;
+            const lines = node.lines || 0;
+            totalLines += lines;
+            if (lines > 0) {
+              const lang = node.language || 'Other';
+              languages[lang] = (languages[lang] || 0) + lines;
+            }
+          }
         } else if (node.children) {
           traverse(node.children);
         }

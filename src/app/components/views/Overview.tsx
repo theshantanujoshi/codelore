@@ -28,7 +28,7 @@ export default function Overview({ repoData, onNavigate }: OverviewProps) {
   
   const langBreakdown = repoData ? Object.entries(repoData.languages).map(([name, count]) => ({
     name,
-    percent: Math.round((count / repoData.lines) * 100)
+    percent: repoData.lines > 0 ? Math.round((count / repoData.lines) * 100) : 0
   })).sort((a, b) => b.percent - a.percent).slice(0, 4) : [
     { name: "TypeScript", percent: 0 },
   ];

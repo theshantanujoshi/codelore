@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Analyzer } from './Analyzer.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getNextNvidiaModel } from './utils/modelSelector.js';
 
 // Colors configuration (ANSI codes)
 const colors = {
@@ -145,7 +146,7 @@ Ensure valid JSON syntax. Do not output anything other than JSON.`;
           method: "POST",
           headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "nvidia/llama-3.1-nemotron-70b-instruct",
+            model: getNextNvidiaModel(),
             response_format: { type: "json_object" },
             max_tokens: 800,
             messages: [{ role: "user", content: prompt }]

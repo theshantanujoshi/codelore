@@ -7,6 +7,7 @@ import { GitService } from './GitService.js';
 import { Analyzer } from './Analyzer.js';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getNextNvidiaModel } from './utils/modelSelector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -95,7 +96,7 @@ app.post('/api/chat', async (req, res) => {
         method: "POST",
         headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "nvidia/llama-3.1-nemotron-70b-instruct",
+          model: getNextNvidiaModel(),
           max_tokens: 800,
           messages: [{ role: "user", content: prompt }]
         })
@@ -242,7 +243,7 @@ Rules:
             method: "POST",
             headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({
-              model: "nvidia/llama-3.1-nemotron-70b-instruct",
+              model: getNextNvidiaModel(),
               response_format: { type: "json_object" },
               max_tokens: 1500,
               messages: [{ role: "user", content: megaPrompt }]

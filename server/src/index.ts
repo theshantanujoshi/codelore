@@ -95,7 +95,7 @@ app.post('/api/chat', async (req, res) => {
         method: "POST",
         headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash-001",
+          model: "nvidia/llama-3.1-nemotron-70b-instruct",
           max_tokens: 800,
           messages: [{ role: "user", content: prompt }]
         })
@@ -242,7 +242,7 @@ Rules:
             method: "POST",
             headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({
-              model: "google/gemini-2.0-flash-001",
+              model: "nvidia/llama-3.1-nemotron-70b-instruct",
               response_format: { type: "json_object" },
               max_tokens: 1500,
               messages: [{ role: "user", content: megaPrompt }]

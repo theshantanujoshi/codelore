@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { archNodes as mockNodes, archEdges as mockEdges, ArchNode } from "../../data/mockData";
 import { RepoData } from "../../services/api";
 
@@ -40,6 +40,7 @@ export default function ArchitectureView({ repoData }: ArchitectureViewProps) {
   const archEdges = repoData?.architecture?.edges || mockEdges || [];
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const maxNodeX = Math.max(...archNodes.map((n) => n.x + n.width), 640);
   const canvasWidth = maxNodeX + 40;
@@ -52,7 +53,9 @@ export default function ArchitectureView({ repoData }: ArchitectureViewProps) {
 
   return (
     <div
-      className="flex-1 flex flex-col overflow-hidden"
+      className={`flex-1 flex flex-col overflow-hidden ${
+        isFullscreen ? "fixed inset-0 z-50 bg-zinc-950" : ""
+      }`}
       style={{ fontFamily: "'JetBrains Mono', monospace" }}
     >
       {/* Toolbar */}
@@ -69,7 +72,9 @@ export default function ArchitectureView({ repoData }: ArchitectureViewProps) {
           <button onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} className="p-1.5 border border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:border-zinc-600 transition-colors"><ZoomOut className="w-3.5 h-3.5" /></button>
           <span className="text-xs text-zinc-700 w-10 text-center">{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom((z) => Math.min(2, z + 0.1))} className="p-1.5 border border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:border-zinc-600 transition-colors"><ZoomIn className="w-3.5 h-3.5" /></button>
-          <button onClick={() => setZoom(1)} className="p-1.5 border border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:border-zinc-600 transition-colors"><Maximize2 className="w-3.5 h-3.5" /></button>
+          <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-1.5 border border-zinc-800 text-zinc-600 hover:text-zinc-300 hover:border-zinc-600 transition-colors">
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+          </button>
         </div>
       </div>
 

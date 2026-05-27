@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ChevronRight, ChevronDown, Cuboid, ListTree } from "lucide-react";
+import FileExplorer3D from "./FileExplorer3D";
 import { mockFileTree, FileNode } from "../../data/mockData";
 
 const complexityLabel = { low: "low", medium: "med", high: "high" };
@@ -76,6 +77,29 @@ function getAllIds(nodes: FileNode[]): string[] {
   return nodes.flatMap((n) => [n.id, ...(n.children ? getAllIds(n.children) : [])]);
 }
 
+function filterTree(nodes: FileNode[], searchTerm: string): FileNode[] {
+  if (!searchTerm) return nodes;
+  const term = searchTerm.toLowerCase();
+  
+  return nodes.map(node => {
+    if (node.type === "file") {
+      if (node.name.toLowerCase().includes(term)) return node;
+      return null;
+    }
+    
+    if (node.type === "directory") {
+      const isMatch = node.name.toLowerCase().includes(term);
+      const filteredChildren = node.children ? filterTree(node.children, searchTerm) : [];
+      
+      if (isMatch || filteredChildren.length > 0) {
+        return { ...node, children: filteredChildren.length > 0 ? filteredChildren : node.children };
+      }
+      return null;
+    }
+    return null;
+  }).filter(Boolean) as FileNode[];
+}
+
 import { RepoData } from "../../services/api";
 
 interface FileExplorerProps {
@@ -84,11 +108,13 @@ interface FileExplorerProps {
 
 export default function FileExplorer({ repoData }: FileExplorerProps) {
   const tree = repoData?.fileTree || mockFileTree;
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(
     new Set(tree.slice(0, 3).map(n => n.id))
   );
   const [search, setSearch] = useState("");
+  const filteredTree = useMemo(() => filterTree(tree, search), [tree, search]);
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -96,9 +122,25 @@ export default function FileExplorer({ repoData }: FileExplorerProps) {
 
   return (
     <div className="flex-1 flex overflow-hidden" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-      {/* Tree */}
-      <div className="w-64 flex-shrink-0 border-r border-zinc-800 flex flex-col">
-        <div className="p-2.5 border-b border-zinc-800">
+      {/* Tree View */}
+      <div className={`${viewMode === "3d" ? "flex-1 border-r border-zinc-800 flex flex-col min-w-0" : "w-64 flex-shrink-0 border-r border-zinc-800 flex flex-col"}`}>
+        <div className="p-2.5 border-b border-zinc-800 flex flex-col gap-2">
+          <div className="flex items-center gap-1 bg-zinc-900/50 p-1 rounded-sm border border-zinc-800">
+            <button
+              onClick={() => setViewMode("2d")}
+              className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs transition-colors rounded-sm ${viewMode === "2d" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
+            >
+              <ListTree className="w-3.5 h-3.5" /> 2D
+            </button>
+            <button
+              onClick={() => setViewMode("3d")}
+              className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs transition-colors rounded-sm ${viewMode === "3d" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
+            >
+              <Cuboid className="w-3.5 h-3.5" /> 3D
+            </button>
+          </div>
+          {viewMode === "2d" && (
+            <>
           <input
             type="text"
             value={search}
@@ -111,9 +153,13 @@ export default function FileExplorer({ repoData }: FileExplorerProps) {
             <span>·</span>
             <button onClick={() => setExpandedIds(new Set())} className="hover:text-zinc-500 transition-colors">collapse</button>
           </div>
+            </>
+          )}
         </div>
-        <div className="flex-1 overflow-y-auto py-1">
-          {tree.map((node) => (
+        
+        {viewMode === "2d" ? (
+          <div className="flex-1 overflow-y-auto py-1">
+            {filteredTree.map((node) => (
             <TreeNode
               key={node.id}
               node={node}
@@ -124,14 +170,20 @@ export default function FileExplorer({ repoData }: FileExplorerProps) {
               onToggle={toggleExpand}
             />
           ))}
-        </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-hidden relative">
+            <FileExplorer3D tree={filteredTree} onSelectNode={setSelectedNode} />
+          </div>
+        )}
+        
         <div className="px-3 py-2 border-t border-zinc-800 text-xs text-zinc-800">
           {repoData?.files || 247} files · ! = high complexity
         </div>
       </div>
 
       {/* Detail */}
-      <div className="flex-1 overflow-y-auto">
+      <div className={`${viewMode === "3d" ? "w-80 flex-shrink-0 bg-zinc-950 overflow-y-auto border-l border-zinc-800" : "flex-1 overflow-y-auto"}`}>
         {selectedNode ? (
           <div className="p-8 max-w-2xl">
             {/* File header */}

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { ChevronRight, ChevronDown, X, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronDown, X, ChevronLeft, ListTree } from "lucide-react";
 import FileExplorer3D from "./FileExplorer3D";
 import { mockFileTree, FileNode } from "../../data/mockData";
 
@@ -110,6 +110,7 @@ export default function FileExplorer({ repoData }: FileExplorerProps) {
   const tree = repoData?.fileTree || mockFileTree;
   const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
 
   useEffect(() => {
     if (selectedNode) setIsPanelOpen(true);
@@ -127,40 +128,61 @@ export default function FileExplorer({ repoData }: FileExplorerProps) {
   return (
     <div className="flex-1 flex overflow-hidden" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
       {/* Left Panel: Tree */}
-      <div className="w-64 flex-shrink-0 border-r border-zinc-800 flex flex-col">
-        <div className="p-2.5 border-b border-zinc-800 flex flex-col gap-2">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="filter files..."
-            className="w-full px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-600 transition-colors"
-          />
-          <div className="flex gap-3 mt-2 px-0.5 text-xs text-zinc-800">
-            <button onClick={() => setExpandedIds(new Set(getAllIds(tree)))} className="hover:text-zinc-500 transition-colors">expand all</button>
-            <span>·</span>
-            <button onClick={() => setExpandedIds(new Set())} className="hover:text-zinc-500 transition-colors">collapse</button>
+      {isLeftPanelOpen ? (
+        <div className="w-64 flex-shrink-0 border-r border-zinc-800 flex flex-col relative">
+          <div className="p-2.5 border-b border-zinc-800 flex flex-col gap-2">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1">Files</span>
+              <button 
+                onClick={() => setIsLeftPanelOpen(false)}
+                className="p-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900 rounded-sm transition-colors"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="filter files..."
+              className="w-full px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-zinc-600 transition-colors"
+            />
+            <div className="flex gap-3 mt-1 px-0.5 text-xs text-zinc-800">
+              <button onClick={() => setExpandedIds(new Set(getAllIds(tree)))} className="hover:text-zinc-500 transition-colors">expand all</button>
+              <span>·</span>
+              <button onClick={() => setExpandedIds(new Set())} className="hover:text-zinc-500 transition-colors">collapse</button>
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto py-1">
+            {filteredTree.map((node) => (
+              <TreeNode
+                key={node.id}
+                node={node}
+                depth={0}
+                selectedId={selectedNode?.id || null}
+                onSelect={setSelectedNode}
+                expandedIds={expandedIds}
+                onToggle={toggleExpand}
+              />
+            ))}
+          </div>
+          
+          <div className="px-3 py-2 border-t border-zinc-800 text-xs text-zinc-800">
+            {repoData?.files || 247} files · ! = high complexity
           </div>
         </div>
-        
-        <div className="flex-1 overflow-y-auto py-1">
-          {filteredTree.map((node) => (
-            <TreeNode
-              key={node.id}
-              node={node}
-              depth={0}
-              selectedId={selectedNode?.id || null}
-              onSelect={setSelectedNode}
-              expandedIds={expandedIds}
-              onToggle={toggleExpand}
-            />
-          ))}
+      ) : (
+        <div className="w-10 flex-shrink-0 border-r border-zinc-800 flex flex-col items-center py-4 bg-zinc-950">
+          <button 
+            onClick={() => setIsLeftPanelOpen(true)}
+            className="p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900 rounded-sm transition-colors"
+            title="Open file tree"
+          >
+            <ListTree className="w-4 h-4" />
+          </button>
         </div>
-        
-        <div className="px-3 py-2 border-t border-zinc-800 text-xs text-zinc-800">
-          {repoData?.files || 247} files · ! = high complexity
-        </div>
-      </div>
+      )}
 
       {/* Center Panel: 3D Graph */}
       <div className="flex-1 overflow-hidden relative">

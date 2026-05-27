@@ -36,11 +36,13 @@ function treeToGraph(node: FileNode, parentId?: string): GraphData {
 interface FileExplorer3DProps {
   tree: FileNode[];
   onSelectNode: (node: FileNode) => void;
+  selectedNodeId?: string | null;
 }
 
-export default function FileExplorer3D({ tree, onSelectNode }: FileExplorer3DProps) {
+export default function FileExplorer3D({ tree, onSelectNode, selectedNodeId }: FileExplorer3DProps) {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const fgRef = useRef<any>(null);
   
   // Create a virtual root to connect multiple top-level nodes if necessary
   const graphData = useMemo(() => {
@@ -85,6 +87,23 @@ export default function FileExplorer3D({ tree, onSelectNode }: FileExplorer3DPro
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (selectedNodeId && fgRef.current && graphData.nodes.length > 0) {
+      const node = graphData.nodes.find((n: any) => n.id === selectedNodeId);
+      if (node && node.x !== undefined && node.y !== undefined && node.z !== undefined) {
+        // Aim at node from outside it
+        const distance = 40;
+        const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+        
+        fgRef.current.cameraPosition(
+          { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+          node, // lookAt ({ x, y, z })
+          1500  // ms transition duration
+        );
+      }
+    }
+  }, [selectedNodeId, graphData.nodes]);
+
   const handleNodeClick = (node: any) => {
     if (node.id === "root") return;
     
@@ -110,6 +129,7 @@ export default function FileExplorer3D({ tree, onSelectNode }: FileExplorer3DPro
     <div ref={containerRef} className="w-full h-full bg-zinc-950 flex items-center justify-center">
       {graphData.nodes.length > 0 ? (
         <ForceGraph3D
+          ref={fgRef}
           width={dimensions.width}
           height={dimensions.height}
           graphData={graphData}

@@ -169,8 +169,8 @@ app.post('/api/analyze', async (req, res) => {
         
         // Limit tree size for prompt
         const summarizeTree = (nodes: any[], depth = 0): any[] => {
-          if (depth > 2 || !nodes) return [];
-          return nodes.slice(0, 30).map((n: any) => ({
+          if (depth > 3 || !nodes) return [];
+          return nodes.slice(0, 40).map((n: any) => ({
             path: n.path,
             type: n.type,
             language: n.language,
@@ -178,6 +178,34 @@ app.post('/api/analyze', async (req, res) => {
             ...(n.type === 'directory' ? { children: summarizeTree(n.children, depth + 1) } : {})
           }));
         };
+
+        const coreFilePatterns = ['package.json', 'index.', 'main.', 'app.', 'server.', 'docker-compose', 'vite.config', 'next.config'];
+        let coreSnippets = '';
+        let snippetCount = 0;
+        
+        const extractSnippets = (nodes: any[]) => {
+          if (!nodes) return;
+          for (const node of nodes) {
+            if (snippetCount >= 5) return;
+            if (node.type === 'file') {
+              const nameLower = node.path.split(/[/\\]/).pop()?.toLowerCase() || '';
+              if (coreFilePatterns.some(p => nameLower.includes(p))) {
+                try {
+                  const content = fs.readFileSync(path.join(repoDir, node.path), 'utf-8');
+                  const lines = content.split('\n').slice(0, 50).join('\n');
+                  coreSnippets += `\n--- ${node.path} ---\n${lines}\n`;
+                  snippetCount++;
+                } catch(e) {}
+              }
+            } else if (node.children) {
+              extractSnippets(node.children);
+            }
+          }
+        };
+        extractSnippets(metrics.tree);
+        if (coreSnippets.length > 3000) {
+          coreSnippets = coreSnippets.substring(0, 3000) + '\n...[truncated]';
+        }
 
         const treeSnippet = JSON.stringify(summarizeTree(metrics.tree), null, 2);
         const depsSnippet = JSON.stringify(metrics.dependencies.slice(0, 20).map((d: any) => `${d.name}@${d.version} (${d.type})`));
@@ -194,6 +222,9 @@ README (first 1500 chars): ${metrics.readme?.slice(0, 1500) || 'No README found'
 
 Directory Structure:
 ${treeSnippet}
+
+Core File Snippets (for accurate architecture & dependency context):
+${coreSnippets}
 
 Return this EXACT JSON structure:
 {

@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { ChevronRight, ChevronDown, X, ChevronLeft } from "lucide-react";
 import FileExplorer3D from "./FileExplorer3D";
 import { mockFileTree, FileNode } from "../../data/mockData";
 
@@ -109,6 +109,11 @@ interface FileExplorerProps {
 export default function FileExplorer({ repoData }: FileExplorerProps) {
   const tree = repoData?.fileTree || mockFileTree;
   const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
+
+  useEffect(() => {
+    if (selectedNode) setIsPanelOpen(true);
+  }, [selectedNode]);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(
     new Set(tree.slice(0, 3).map(n => n.id))
   );
@@ -163,11 +168,17 @@ export default function FileExplorer({ repoData }: FileExplorerProps) {
       </div>
 
       {/* Right Panel: Detail */}
-      {selectedNode && (
-        <div className="w-80 flex-shrink-0 bg-zinc-950 overflow-y-auto border-l border-zinc-800">
+      {selectedNode && isPanelOpen && (
+        <div className="w-80 flex-shrink-0 bg-zinc-950 overflow-y-auto border-l border-zinc-800 relative">
+          <button 
+            onClick={() => setIsPanelOpen(false)}
+            className="absolute top-6 right-6 p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900 rounded-sm transition-colors z-10"
+          >
+            <X className="w-4 h-4" />
+          </button>
           <div className="p-8 max-w-2xl">
             {/* File header */}
-            <div className="mb-6">
+            <div className="mb-6 pr-6">
               <div className="text-xs text-zinc-700 mb-1">
                 {selectedNode.type === "directory" ? "directory" : selectedNode.language?.toLowerCase() || "file"}
               </div>
@@ -245,6 +256,19 @@ export default function FileExplorer({ repoData }: FileExplorerProps) {
               </div>
             )}
           </div>
+        </div>
+      )}
+      
+      {/* Collapsed Right Panel */}
+      {selectedNode && !isPanelOpen && (
+        <div className="w-10 flex-shrink-0 bg-zinc-950 border-l border-zinc-800 flex flex-col items-center py-4">
+          <button 
+            onClick={() => setIsPanelOpen(true)}
+            className="p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900 rounded-sm transition-colors"
+            title="Open file details"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

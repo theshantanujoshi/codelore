@@ -164,6 +164,7 @@ export default function AIChat({ repoData }: AIChatProps) {
       // Use real AI if available
       const response = await chatWithAI(q, {
         repoName,
+        url: repoData?.url,
         description: repoData?.description,
         files: repoData?.files,
         lines: repoData?.lines,

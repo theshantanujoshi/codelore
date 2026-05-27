@@ -3,8 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Analyzer } from './Analyzer.js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getNextNvidiaModel } from './utils/modelSelector.js';
 
 // Colors configuration (ANSI codes)
 const colors = {
@@ -102,8 +100,7 @@ async function run() {
   let aiData: any = null;
 
   if (apiKey) {
-    console.log(`${colors.bold}AI Analysis is active. Requesting diagnostics from Gemini...${colors.reset}`);
-    const isOpenRouter = apiKey.startsWith('sk-or-');
+    console.log(`${colors.bold}AI Analysis is active. Requesting diagnostics from Mistral via OpenRouter...${colors.reset}`);
     
     try {
       const treeSnippet = JSON.stringify(metrics.tree.slice(0, 30).map((n: any) => ({
@@ -140,34 +137,19 @@ Return this EXACT JSON structure:
 
 Ensure valid JSON syntax. Do not output anything other than JSON.`;
 
-      let text = '';
-      if (isOpenRouter) {
-        const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: getNextNvidiaModel(),
-            response_format: { type: "json_object" },
-            max_tokens: 800,
-            messages: [{ role: "user", content: prompt }]
-          })
-        });
-        const orData: any = await orRes.json();
-        if (orData.error) throw new Error(orData.error.message || 'OpenRouter API Error');
-        text = orData.choices[0].message.content;
-      } else {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-          model: "gemini-2.0-flash",
-          generationConfig: { 
-            responseMimeType: "application/json",
-            maxOutputTokens: 800 
-          }
-        });
-        const result = await model.generateContent(prompt);
-        text = result.response.text();
-      }
-
+      const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "mistralai/mistral-small-3.1-24b-instruct:free",
+          response_format: { type: "json_object" },
+          max_tokens: 800,
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+      const orData: any = await orRes.json();
+      if (orData.error) throw new Error(orData.error.message || 'OpenRouter API Error');
+      let text = orData.choices[0].message.content;
       text = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
       aiData = JSON.parse(text);
     } catch (err: any) {

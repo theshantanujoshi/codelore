@@ -6,8 +6,6 @@ import fs from 'fs';
 import { GitService } from './GitService.js';
 import { Analyzer } from './Analyzer.js';
 import { fileURLToPath } from 'url';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getNextNvidiaModel } from './utils/modelSelector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,12 +20,8 @@ const port = process.env.PORT || 3001;
 const reposDir = process.env.VERCEL ? path.join(os.tmpdir(), 'repos') : path.join(__dirname, '../data/repos');
 const useViteMiddleware = process.env.CODELORE_VITE_MIDDLEWARE === '1';
 
-// Initialize Gemini or prepare for OpenRouter
+// Use OpenRouter
 const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
-const isOpenRouter = apiKey.startsWith('sk-or-');
-const genAI = (!isOpenRouter && apiKey)
-  ? new GoogleGenerativeAI(apiKey)
-  : null;
 
 const gitService = new GitService(reposDir);
 
@@ -52,7 +46,7 @@ if (useViteMiddleware) {
 }
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'codelore backend is active', ai: !!genAI });
+  res.json({ status: 'ok', message: 'codelore backend is active', ai: !!apiKey });
 });
 
 app.post('/api/chat', async (req, res) => {
@@ -91,27 +85,18 @@ app.post('/api/chat', async (req, res) => {
 
     let text = '';
     
-    if (isOpenRouter) {
-      const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: getNextNvidiaModel(),
-          max_tokens: 800,
-          messages: [{ role: "user", content: prompt }]
-        })
-      });
-      const orData: any = await orRes.json();
-      if (orData.error) throw new Error(orData.error.message || 'OpenRouter API Error');
-      text = orData.choices[0].message.content;
-    } else {
-      const model = genAI!.getGenerativeModel({ 
-        model: "gemini-2.0-flash",
-        generationConfig: { maxOutputTokens: 800 }
-      });
-      const result = await model.generateContent(prompt);
-      text = result.response.text();
-    }
+    const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "mistralai/mistral-small-3.1-24b-instruct:free",
+        max_tokens: 800,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const orData: any = await orRes.json();
+    if (orData.error) throw new Error(orData.error.message || 'OpenRouter API Error');
+    text = orData.choices[0].message.content;
 
     res.json({ response: text });
   } catch (error: any) {
@@ -269,12 +254,11 @@ Rules:
 - Generate edges showing real data flow between modules
 - Generate fileMetadata for the 5-8 most important files, providing a short description and complexity rating.
 - All data must be specific to THIS repository, not generic`;
-        if (isOpenRouter) {
           const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({
-              model: getNextNvidiaModel(),
+              model: "mistralai/mistral-small-3.1-24b-instruct:free",
               response_format: { type: "json_object" },
               max_tokens: 1500,
               messages: [{ role: "user", content: megaPrompt }]
@@ -283,17 +267,6 @@ Rules:
           const orData: any = await orRes.json();
           if (orData.error) throw new Error(orData.error.message || 'OpenRouter API Error');
           text = orData.choices[0].message.content;
-        } else {
-          const model = genAI!.getGenerativeModel({ 
-            model: "gemini-2.0-flash",
-            generationConfig: { 
-              responseMimeType: "application/json",
-              maxOutputTokens: 1500
-            }
-          });
-          const result = await model.generateContent(megaPrompt);
-          text = result.response.text();
-        }
         text = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
         const aiData = JSON.parse(text);
         

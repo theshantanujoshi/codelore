@@ -22,9 +22,23 @@ export default function Landing({ onGetStarted }: LandingProps) {
 
   return (
     <div
-      className="min-h-full bg-zinc-950 text-zinc-300 overflow-y-auto"
+      className="min-h-full bg-zinc-950 text-zinc-300 overflow-y-auto flex flex-col"
       style={{ fontFamily: "'JetBrains Mono', monospace", scrollBehavior: "smooth" }}
     >
+      {/* Banner */}
+      <div className="bg-zinc-100 text-zinc-900 py-2 px-6 flex items-center justify-center text-xs font-semibold">
+        <span>like my work? </span>
+        <a 
+          href="https://github.com/theshantanujoshi/codelore" 
+          target="_blank" 
+          rel="noreferrer"
+          className="ml-1 underline decoration-zinc-400 hover:decoration-zinc-900 transition-colors"
+        >
+          star the repo
+        </a>
+        <span className="ml-1"> and follow along for more!</span>
+      </div>
+
       {/* Nav */}
       <nav className="border-b border-zinc-800 px-6 h-12 flex items-center justify-between">
         <motion.button

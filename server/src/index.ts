@@ -345,14 +345,6 @@ Rules:
       isLargeRepo: metrics.totalFiles > 500 || metrics.totalLines > 50000,
     };
 
-    // Clean up repo
-    try {
-      fs.rmSync(repoDir, { recursive: true, force: true });
-      console.log(`[server]: Cleaned up repository clone at ${repoDir}`);
-    } catch (e) {
-      console.warn(`[server]: Failed to delete repo clone:`, e);
-    }
-
     console.log(`[server]: Sending results back to client.`);
     res.json(repoInfo);
   } catch (error: any) {
@@ -362,6 +354,15 @@ Rules:
       details: error.message,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
     });
+  } finally {
+    if (repoDir) {
+      try {
+        fs.rmSync(repoDir, { recursive: true, force: true });
+        console.log(`[server]: Cleaned up repository clone at ${repoDir}`);
+      } catch (e) {
+        console.warn(`[server]: Failed to delete repo clone:`, e);
+      }
+    }
   }
 });
 

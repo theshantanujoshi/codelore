@@ -36,9 +36,31 @@ interface OnboardingGuideProps {
 
 export default function OnboardingGuide({ repoData }: OnboardingGuideProps) {
   const repoName = repoData?.fullName || "this repository";
-  const steps = repoData?.onboarding || mockOnboardingSteps;
+  const steps = repoData ? repoData.onboarding : mockOnboardingSteps;
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set([1, 2, 3]));
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([1, 2]));
+
+  if (repoData && !repoData.onboarding) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="max-w-md">
+          <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-4">
+            <span className="text-zinc-500 text-lg">!</span>
+          </div>
+          <h3 className="text-sm font-semibold text-zinc-300 mb-2 uppercase tracking-wide">AI Generation Failed</h3>
+          <p className="text-xs text-zinc-500 leading-relaxed mb-6">
+            The external AI service timed out or was unable to generate an onboarding guide for this repository. 
+            You can still browse the file tree and static metrics.
+          </p>
+          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs hover:bg-zinc-800 transition-colors uppercase tracking-widest">
+            Retry Analysis
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const onboardingSteps = steps || [];
 
   const toggleExpand = (id: number) => {
     setExpandedSteps((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -47,7 +69,7 @@ export default function OnboardingGuide({ repoData }: OnboardingGuideProps) {
     setCompletedSteps((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
 
-  const progress = Math.round((completedSteps.size / steps.length) * 100) || 0;
+  const progress = Math.round((completedSteps.size / onboardingSteps.length) * 100) || 0;
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -63,7 +85,7 @@ export default function OnboardingGuide({ repoData }: OnboardingGuideProps) {
         <div className="border border-zinc-800 px-4 py-4 mb-8">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-zinc-600">setup progress</span>
-            <span className="text-xs text-zinc-500">{completedSteps.size}/{steps.length} steps</span>
+            <span className="text-xs text-zinc-500">{completedSteps.size}/{onboardingSteps.length} onboardingSteps</span>
           </div>
           <div className="h-px bg-zinc-800 mb-1.5">
             <div className="h-full bg-zinc-400 transition-all duration-500" style={{ width: `${progress}%` }} />
@@ -76,7 +98,7 @@ export default function OnboardingGuide({ repoData }: OnboardingGuideProps) {
 
         {/* Steps */}
         <div className="space-y-2">
-          {steps.map((step) => {
+          {onboardingSteps.map((step) => {
             const isExpanded = expandedSteps.has(step.id);
             const isCompleted = completedSteps.has(step.id);
 

@@ -77,9 +77,31 @@ interface ExecutionFlowProps {
 }
 
 export default function ExecutionFlow({ repoData }: ExecutionFlowProps) {
-  const executionFlow = repoData?.executionFlow || mockExecutionFlow;
+  const executionFlow = repoData ? repoData.executionFlow : mockExecutionFlow;
   const [activeScenario, setActiveScenario] = useState("analyze");
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set(["1", "2"]));
+
+  if (repoData && !executionFlow) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="max-w-md">
+          <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-4">
+            <span className="text-zinc-500 text-lg">!</span>
+          </div>
+          <h3 className="text-sm font-semibold text-zinc-300 mb-2 uppercase tracking-wide">AI Generation Failed</h3>
+          <p className="text-xs text-zinc-500 leading-relaxed mb-6">
+            The external AI service timed out or was unable to generate an execution flow for this repository. 
+            You can still browse the file tree and static metrics.
+          </p>
+          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs hover:bg-zinc-800 transition-colors uppercase tracking-widest">
+            Retry Analysis
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const flowSteps = executionFlow || [];
 
   const toggleStep = (id: string) => {
     setExpandedSteps((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -121,7 +143,7 @@ export default function ExecutionFlow({ repoData }: ExecutionFlowProps) {
             <span>·</span>
             <span>1 git instance</span>
             <span>·</span>
-            <span>{executionFlow.length} modules</span>
+            <span>{flowSteps.length} modules</span>
           </div>
         </div>
 
@@ -129,8 +151,8 @@ export default function ExecutionFlow({ repoData }: ExecutionFlowProps) {
         <div className="border border-zinc-800 px-4 py-3 mb-6">
           <div className="text-xs text-zinc-700 mb-2">timeline</div>
           <div className="flex h-5 gap-px">
-            {executionFlow.map((step, i) => {
-              const w = 100 / executionFlow.length;
+            {flowSteps.map((step, i) => {
+              const w = 100 / flowSteps.length;
               const brightness = 60 - (i * 5);
               return (
                 <div
@@ -151,12 +173,12 @@ export default function ExecutionFlow({ repoData }: ExecutionFlowProps) {
 
         {/* Steps */}
         <div className="space-y-2">
-          {executionFlow.map((step, i) => (
+          {flowSteps.map((step, i) => (
             <StepCard
               key={step.id}
               step={step}
               index={i}
-              totalSteps={executionFlow.length}
+              totalSteps={flowSteps.length}
               isExpanded={expandedSteps.has(step.id)}
               onToggle={() => toggleStep(step.id)}
             />
@@ -168,7 +190,7 @@ export default function ExecutionFlow({ repoData }: ExecutionFlowProps) {
           <div className="text-[10px] text-zinc-700 mb-3 uppercase tracking-widest"># summary</div>
           <div className="grid grid-cols-3 gap-4 text-center">
             {[
-              { v: executionFlow.length, l: "execution modules" },
+              { v: flowSteps.length, l: "execution modules" },
               { v: totalDuration, l: "total latency" },
               { v: "1",      l: "git instance" },
             ].map((s) => (

@@ -152,35 +152,44 @@ export default function Overview({ repoData, onNavigate }: OverviewProps) {
         {/* Insights */}
         <div>
           <div className="text-xs text-zinc-700 uppercase tracking-widest mb-3">
-            # ai insights · {repoData?.insights ? repoData.insights.length : mockInsights.length} findings
+            # ai insights
           </div>
-          <div className="border border-zinc-800 divide-y divide-zinc-800">
-            {(repoData?.insights || mockInsights).map((insight) => (
-              <div key={insight.id} className="flex items-start gap-3 px-4 py-3 hover:bg-zinc-900 transition-colors">
-                <span className={`text-xs flex-shrink-0 mt-0.5 ${
-                  insight.severity === "success" ? "text-zinc-400" :
-                  insight.severity === "warning" ? "text-zinc-400" :
-                  insight.severity === "error"   ? "text-zinc-400" :
-                  "text-zinc-600"
-                }`}>
-                  {severityPrefix[insight.severity]}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap mb-0.5">
-                    <span className="text-xs text-zinc-300" style={{ fontWeight: 500 }}>
-                      {insight.title}
-                    </span>
-                    <span className="text-xs text-zinc-700">{insight.category}</span>
-                    <span className="text-xs text-zinc-700">{insight.effort}-effort</span>
-                  </div>
-                  <p className="text-xs text-zinc-600 leading-relaxed">{insight.description}</p>
-                  {insight.file && (
-                    <span className="text-xs text-zinc-700 mt-0.5 block">{insight.file}</span>
-                  )}
-                </div>
+          {repoData && !repoData.insights ? (
+            <div className="border border-zinc-800 bg-zinc-900/30 px-6 py-6 text-center">
+              <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-3">
+                <span className="text-zinc-500">!</span>
               </div>
-            ))}
-          </div>
+              <p className="text-xs text-zinc-500">AI generation failed. No insights available.</p>
+            </div>
+          ) : (
+            <div className="border border-zinc-800 divide-y divide-zinc-800">
+              {(repoData?.insights || mockInsights).map((insight) => (
+                <div key={insight.id} className="flex items-start gap-3 px-4 py-3 hover:bg-zinc-900 transition-colors">
+                  <span className={`text-xs flex-shrink-0 mt-0.5 ${
+                    insight.severity === "success" ? "text-zinc-400" :
+                    insight.severity === "warning" ? "text-zinc-400" :
+                    insight.severity === "error"   ? "text-zinc-400" :
+                    "text-zinc-600"
+                  }`}>
+                    {severityPrefix[insight.severity]}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap mb-0.5">
+                      <span className="text-xs text-zinc-300" style={{ fontWeight: 500 }}>
+                        {insight.title}
+                      </span>
+                      <span className="text-xs text-zinc-700">{insight.category}</span>
+                      <span className="text-xs text-zinc-700">{insight.effort}-effort</span>
+                    </div>
+                    <p className="text-xs text-zinc-600 leading-relaxed">{insight.description}</p>
+                    {insight.file && (
+                      <span className="text-xs text-zinc-700 mt-0.5 block">{insight.file}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Quick nav */}

@@ -25,15 +25,46 @@ const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || '';
 
 const gitService = new GitService(reposDir);
 
-const summarizeTree = (nodes: any[], depth = 0): any[] => {
-  if (depth > 3 || !nodes) return [];
-  return nodes.slice(0, 40).map((n: any) => ({
-    path: n.path,
-    type: n.type,
-    language: n.language,
-    lines: n.lines,
-    ...(n.type === 'directory' ? { children: summarizeTree(n.children, depth + 1) } : {})
-  }));
+const summarizeTree = (nodes: any[]): any[] => {
+  const flatNodes: any[] = [];
+  const flatten = (n: any[], depth = 0) => {
+    for (const node of n) {
+      let weight = 0;
+      const name = node.name?.toLowerCase() || '';
+      
+      // Highest priority: core configs
+      if (name === 'package.json' || name.startsWith('vite.config') || name.startsWith('next.config') || name === 'tsconfig.json') weight = 100;
+      // High priority: src root files
+      else if (depth === 1 && (node.path.startsWith('src/') || node.path.startsWith('app/'))) weight = 80;
+      // Medium priority: root files
+      else if (depth === 0) weight = 50;
+      // Lower priority: deep files
+      else weight = 10 - depth;
+
+      flatNodes.push({ ...node, weight, depth });
+      if (node.children) flatten(node.children, depth + 1);
+    }
+  };
+  flatten(nodes);
+
+  // Keep all directories, but sort files by weight and limit total files to 150
+  const dirs = flatNodes.filter(n => n.type === 'directory');
+  const files = flatNodes.filter(n => n.type === 'file').sort((a, b) => b.weight - a.weight).slice(0, 150);
+
+  const selectedPaths = new Set([...dirs, ...files].map(n => n.path));
+
+  // Reconstruct tree
+  const rebuild = (n: any[]): any[] => {
+    return n.filter(node => selectedPaths.has(node.path)).map(node => ({
+      path: node.path,
+      type: node.type,
+      language: node.language,
+      lines: node.lines,
+      ...(node.type === 'directory' ? { children: rebuild(node.children) } : {})
+    }));
+  };
+
+  return rebuild(nodes);
 };
 
 const getCoreSnippets = (tree: any[], repoDir: string): string => {
@@ -172,13 +203,25 @@ app.post('/api/analyze', async (req, res) => {
     return res.status(400).json({ error: 'Repository URL is required' });
   }
 
+  const abortController = new AbortController();
+  req.on('close', () => {
+    if (!res.writableEnded) {
+      console.log(`[server]: Client disconnected. Aborting analysis for ${url}`);
+      abortController.abort();
+    }
+  });
+
+  let repoDir: string | undefined;
   try {
     console.log(`[server]: Cloning repository...`);
-    const repoDir = await gitService.clone(url);
-    console.log(`[server]: Clone complete at ${repoDir}. Starting analysis...`);
+    repoDir = await gitService.clone(url);
+    if (abortController.signal.aborted) throw new Error('Request aborted by client');
     
+    console.log(`[server]: Clone complete at ${repoDir}. Starting analysis...`);
     const analyzer = new Analyzer(repoDir);
     const metrics = await analyzer.getMetrics();
+    if (abortController.signal.aborted) throw new Error('Request aborted by client');
+    
     console.log(`[server]: Analysis complete. Found ${metrics.totalFiles} files.`);
 
     const repoName = url.split('/').pop()?.replace('.git', '') || 'unknown';
@@ -275,10 +318,15 @@ Rules:
 - Generate edges showing real data flow between modules
 - Generate fileMetadata for the 5-8 most important files, providing a short description and complexity rating.
 - All data must be specific to THIS repository, not generic`;
+          let signal = AbortSignal.timeout(15000);
+          if (typeof AbortSignal.any === 'function') {
+            signal = AbortSignal.any([AbortSignal.timeout(15000), abortController.signal]);
+          }
+
           const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-            signal: AbortSignal.timeout(5500),
+            signal,
             body: JSON.stringify({
               model: "mistralai/mistral-small-3.1-24b-instruct:free",
               response_format: { type: "json_object" },

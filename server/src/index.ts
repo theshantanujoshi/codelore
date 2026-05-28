@@ -278,10 +278,11 @@ Rules:
           const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+            signal: AbortSignal.timeout(5500),
             body: JSON.stringify({
               model: "mistralai/mistral-small-3.1-24b-instruct:free",
               response_format: { type: "json_object" },
-              max_tokens: 1500,
+              max_tokens: 1000,
               messages: [{ role: "user", content: megaPrompt }]
             })
           });

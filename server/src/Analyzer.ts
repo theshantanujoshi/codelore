@@ -1,6 +1,32 @@
 import fs from 'fs';
 import path from 'path';
 
+function pLimit(concurrency: number) {
+  const queue: (() => void)[] = [];
+  let activeCount = 0;
+
+  const next = () => {
+    activeCount--;
+    if (queue.length > 0) {
+      queue.shift()!();
+    }
+  };
+
+  return async <T>(fn: () => Promise<T>): Promise<T> => {
+    if (activeCount >= concurrency) {
+      await new Promise<void>(resolve => queue.push(resolve));
+    }
+    activeCount++;
+    try {
+      return await fn();
+    } finally {
+      next();
+    }
+  };
+}
+
+const fsLimit = pLimit(50);
+
 export interface FileNode {
   id: string;
   name: string;
@@ -43,8 +69,7 @@ export class Analyzer {
 
   async getFileTree(currentDir: string = this.dir, relativePath: string = ''): Promise<FileNode[]> {
     console.log(`[analyzer]: Scanning directory: ${relativePath || '/'}`);
-    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
-    const nodes: FileNode[] = [];
+    const entries = await fsLimit(() => fs.promises.readdir(currentDir, { withFileTypes: true }));
 
     const textExtensions = new Set([
       '.ts', '.tsx', '.mts', '.cts',
@@ -71,38 +96,38 @@ export class Analyzer {
       '.xml'
     ]);
 
-    for (const entry of entries) {
-      if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.next') continue;
+    const nodes = await Promise.all(entries.map(async (entry) => {
+      if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.next') return null;
 
       const fullPath = path.join(currentDir, entry.name);
       const relPath = path.join(relativePath, entry.name);
       const id = relPath.replace(/\\/g, '-').replace(/\//g, '-');
 
       if (entry.isDirectory()) {
-        nodes.push({
+        return {
           id,
           name: entry.name,
           type: 'directory',
           path: relPath,
           children: await this.getFileTree(fullPath, relPath),
-        });
+        } as FileNode;
       } else {
-        const stats = fs.statSync(fullPath);
+        const stats = await fsLimit(() => fs.promises.stat(fullPath));
         const ext = path.extname(entry.name).toLowerCase();
         
         const isNoExtTextFile = ['dockerfile', 'makefile', 'gemfile', 'pipfile'].includes(entry.name.toLowerCase());
         
         let lines = 0;
-        if (textExtensions.has(ext) || isNoExtTextFile) {
+        if ((textExtensions.has(ext) || isNoExtTextFile) && stats.size < 1048576) {
           try {
-            const content = fs.readFileSync(fullPath, 'utf-8');
+            const content = await fsLimit(() => fs.promises.readFile(fullPath, 'utf-8'));
             lines = content.split('\n').length;
           } catch (e) {
             console.warn(`[analyzer]: Could not read file ${relPath}:`, e);
           }
         }
 
-        nodes.push({
+        return {
           id,
           name: entry.name,
           type: 'file',
@@ -110,11 +135,11 @@ export class Analyzer {
           size: stats.size,
           lines: lines,
           language: this.detectLanguage(entry.name),
-        });
+        } as FileNode;
       }
-    }
+    }));
 
-    return nodes;
+    return nodes.filter(Boolean) as FileNode[];
   }
 
   private detectLanguage(filename: string): string {
@@ -178,13 +203,13 @@ export class Analyzer {
     return map[ext] || 'Text';
   }
 
-  parseDependencies(): DepInfo[] {
+  async parseDependencies(): Promise<DepInfo[]> {
     const deps: DepInfo[] = [];
-    const pkgPaths = this.findPackageJsons(this.dir, '', 2);
+    const pkgPaths = await this.findPackageJsons(this.dir, '', 2);
 
     for (const pkgPath of pkgPaths) {
       try {
-        const raw = fs.readFileSync(pkgPath, 'utf-8');
+        const raw = await fs.promises.readFile(pkgPath, 'utf-8');
         const pkg = JSON.parse(raw);
 
         if (pkg.dependencies) {
@@ -209,18 +234,19 @@ export class Analyzer {
     return deps;
   }
 
-  private findPackageJsons(dir: string, rel: string, maxDepth: number): string[] {
+  private async findPackageJsons(dir: string, rel: string, maxDepth: number): Promise<string[]> {
     if (maxDepth <= 0) return [];
     const results: string[] = [];
     try {
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      const entries = await fsLimit(() => fs.promises.readdir(dir, { withFileTypes: true }));
       for (const entry of entries) {
         if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'dist') continue;
         if (entry.name === 'package.json' && entry.isFile()) {
           results.push(path.join(dir, entry.name));
         }
         if (entry.isDirectory()) {
-          results.push(...this.findPackageJsons(path.join(dir, entry.name), path.join(rel, entry.name), maxDepth - 1));
+          const children = await this.findPackageJsons(path.join(dir, entry.name), path.join(rel, entry.name), maxDepth - 1);
+          results.push(...children);
         }
       }
     } catch (_) {}
@@ -330,16 +356,17 @@ export class Analyzer {
     return { nodes, edges };
   }
 
-  parseReadme(): string {
+  async parseReadme(): Promise<string> {
     const readmePaths = ['README.md', 'readme.md', 'README.MD', 'Readme.md'];
     for (const name of readmePaths) {
       const fullPath = path.join(this.dir, name);
-      if (fs.existsSync(fullPath)) {
-        try {
-          const content = fs.readFileSync(fullPath, 'utf-8');
+      try {
+        const stats = await fs.promises.stat(fullPath);
+        if (stats.isFile() && stats.size < 1048576) {
+          const content = await fs.promises.readFile(fullPath, 'utf-8');
           return content.slice(0, 3000); // Limit to 3000 chars
-        } catch (_) {}
-      }
+        }
+      } catch (_) {}
     }
     return '';
   }
@@ -391,9 +418,9 @@ export class Analyzer {
     if (numLanguages > 3) score += 4;
     score = Math.min(score, 99);
 
-    const dependencies = this.parseDependencies();
+    const dependencies = await this.parseDependencies();
     const architecture = this.generateArchitecture(tree);
-    const readme = this.parseReadme();
+    const readme = await this.parseReadme();
 
     return {
       totalFiles,

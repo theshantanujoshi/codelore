@@ -17,7 +17,7 @@ dotenv.config();
 import os from 'os';
 const app = express();
 const port = process.env.PORT || 3001;
-const reposDir = process.env.VERCEL ? path.join(os.tmpdir(), 'repos') : path.join(__dirname, '../data/repos');
+const reposDir = path.join(__dirname, '../data/repos');
 const useViteMiddleware = process.env.CODELORE_VITE_MIDDLEWARE === '1';
 
 // Use OpenRouter
@@ -397,7 +397,7 @@ app.get('*', async (req, res) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
   });

@@ -19,9 +19,7 @@ export class GitService {
     const dir = path.join(this.baseDir, repoName);
 
     if (fs.existsSync(dir)) {
-      // If exists, we might want to pull or just use existing
-      // For now, let's just return the directory
-      return dir;
+      fs.rmSync(dir, { recursive: true, force: true });
     }
 
     await git.clone({

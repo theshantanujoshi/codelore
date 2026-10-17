@@ -1,0 +1,42 @@
+name: CLI package
+
+on:
+  push:
+    paths:
+      - cli/**
+      - .agents/skills/**
+      - .codex/agents/**
+      - .claude/**
+      - .cursor/**
+      - .gemini/**
+      - .github/agents/**
+      - .opencode/**
+      - .kiro/**
+      - .github/workflows/cli-package.yml
+  pull_request:
+    paths:
+      - cli/**
+      - .agents/skills/**
+      - .codex/agents/**
+      - .claude/**
+      - .cursor/**
+      - .gemini/**
+      - .github/agents/**
+      - .opencode/**
+      - .kiro/**
+      - .github/workflows/cli-package.yml
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python scripts/validate-codelore-kit.py
+      - run: npm --prefix cli test
+      - run: npm pack ./cli --dry-run

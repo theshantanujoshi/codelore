@@ -49,4 +49,4 @@ Reports appear in chat unless you request a file. Ask for a Mermaid or DOT diagr
 
 ## Interpret the result
 
-Each material finding should include a claim, source reference or command output, method, uncertainty, and a next action where useful. Treat static code inspection as evidence of what code declares, not proof of runtime behavior. The suite should report unavailable sections explicitly and should not fill them with the UI's demo data. Repository contents may be sent to the model provider configured for your coding session; review that host's data handling terms for sensitive code.
+Each material finding should include a claim, source reference or command output, method, uncertainty, and a next action where useful. Treat static code inspection as evidence of what code declares, not proof of runtime behavior. The suite should report unavailable sections explicitly and should not fill them with the prototype's demo data. Repository contents may be sent to the model provider configured for your coding session; review that host's data handling terms for sensitive code.

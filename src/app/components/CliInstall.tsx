@@ -10,19 +10,19 @@ export default function CliInstall({ onBack }: CliInstallProps) {
 
   const steps = [
     {
-      title: "1. global installation",
-      desc: "install the CLI package globally using npm, yarn, or pnpm.",
-      cmd: "npm install -g codelore"
+      title: "1. prepare the package",
+      desc: "from a Codelore source checkout, bundle the skills and agents for the CLI.",
+      cmd: "npm --prefix cli run prepack"
     },
     {
-      title: "2. authenticate (optional)",
-      desc: "set your gemini API key to enable codebase Q&A and AI-generated insights.",
-      cmd: "codelore config set api_key <your-gemini-key>"
+      title: "2. install into a repository",
+      desc: "copy the Codelore skills and agent profiles into an existing checkout.",
+      cmd: "node cli/bin/codelore.mjs init ../my-project"
     },
     {
-      title: "3. run codebase analysis",
-      desc: "navigate to any local project directory and execute the scanner.",
-      cmd: "codelore analyze"
+      title: "3. ask your coding agent",
+      desc: "open that checkout in a supported coding harness and ask for a source-cited review.",
+      cmd: "Use the codelore-workflow skill to review this repository."
     }
   ];
 
@@ -67,7 +67,7 @@ export default function CliInstall({ onBack }: CliInstallProps) {
             cli setup guide
           </h1>
           <p className="text-xs text-zinc-600 mb-8">
-            run codelore directly inside your local terminal to scan repositories without uploading source code.
+            install Codelore's review skills into a local checkout, then run them in your coding agent.
           </p>
 
           <div className="space-y-6">
@@ -93,33 +93,22 @@ export default function CliInstall({ onBack }: CliInstallProps) {
               </div>
             ))}
 
-            {/* Mock CLI Output terminal box */}
+            {/* Local CLI output example */}
             <div className="border border-zinc-800 rounded-sm overflow-hidden bg-zinc-950/60 mt-8">
               <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 bg-zinc-900/30">
-                <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold">terminal - codelore analyze</span>
+                <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold">terminal - CLI install</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               </div>
               <pre className="p-4 text-[10px] text-zinc-500 leading-relaxed overflow-x-auto whitespace-pre font-mono">
-                {`$ codelore analyze
-[info] Scanning current directory: /Users/dev/my-project
-[info] Scanning files... Found 84 files
-[info] Building structural module graph... Done
-[info] Requesting AI diagnostic models...
-[success] Analysis Complete!
---------------------------------------------------
-Health Score: 96/100
-Issues: 2 warnings, 0 errors
-Insights:
- - [warn] heavy module bundling found in src/utils
- - [ok] clean React component separation detected
-
-Run "codelore dashboard" to open UI portal locally.`}
+                {`$ node cli/bin/codelore.mjs init ../my-project
+Installed Codelore files into ../my-project
+Open the checkout in your coding agent and ask it to use codelore-workflow.`}
               </pre>
             </div>
           </div>
 
           <div className="mt-8 text-xs text-zinc-700 leading-relaxed">
-            {`// global package supports npm, pnpm, yarn, and bun environments.`}
+            {`// npm package is not published yet. After publication: npx codelore-agent-suite`}
           </div>
         </div>
       </div>

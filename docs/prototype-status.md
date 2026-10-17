@@ -1,4 +1,4 @@
-# UI prototype status
+# Prototype status
 
 This page describes the browser app in this checkout. It is a React 18/Vite visual prototype of the original Codelore concept. It is separate from the [skill workflows](using-codelore.md) that perform repository analysis.
 
@@ -22,6 +22,6 @@ Open the local URL printed by Vite. `npm run build` creates a production bundle,
 | Analysis | [`Processing.tsx`](../src/app/components/Processing.tsx) calls `POST /api/analyze`. Its clone command, steps, and progress are display text, not measured operations. The endpoint is absent, so a fresh local import or demo cannot produce a dashboard report. |
 | Chat | [`AIChat.tsx`](../src/app/components/views/AIChat.tsx) calls `POST /api/chat`. Its initial greeting, confidence, and source label are hard-coded; the endpoint is absent. |
 | Settings and export | [`Settings.tsx`](../src/app/components/views/Settings.tsx) keeps the key field, analysis options, theme choice, and notification toggles in component state. The JSON download works only if `repoData` already exists. PDF is disabled; the delete button has no handler. |
-| CLI screen | [`CliInstall.tsx`](../src/app/components/CliInstall.tsx) displays installation instructions. This repository does not contain a Codelore CLI package, and those commands have not been verified. |
+| CLI screen | [`CliInstall.tsx`](../src/app/components/CliInstall.tsx) displays the local install flow for the new [CLI package](../cli/README.md). The npm package has not been published. |
 
-The API client is [`src/app/services/api.ts`](../src/app/services/api.ts); development proxy configuration is [`vite.config.ts`](../vite.config.ts). The proxy points to `localhost:3001`, but this repository has no backend service. Some UI copy promises OAuth, repository retention, and local-only processing; there is no implementation here to substantiate those claims. The fixture content in [`mockData.ts`](../src/app/data/mockData.ts) is presentation data, not a codebase analysis result.
+The API client is [`src/app/services/api.ts`](../src/app/services/api.ts); development proxy configuration is [`vite.config.ts`](../vite.config.ts). The proxy points to `localhost:3001`, but this repository has no backend service. Some interface copy promises OAuth, repository retention, and local-only processing; there is no implementation here to substantiate those claims. The fixture content in [`mockData.ts`](../src/app/data/mockData.ts) is presentation data, not a codebase analysis result.

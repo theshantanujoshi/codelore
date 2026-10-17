@@ -1,0 +1,57 @@
+name: Release CLI package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version expected in cli/package.json
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python scripts/validate-codelore-kit.py
+      - run: npm --prefix cli test
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: npm-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - name: Verify release version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node -e "const p=require('./cli/package.json'); if(p.version !== process.env.RELEASE_VERSION) throw new Error('Version does not match cli/package.json')"
+      - name: Pack once
+        id: pack
+        shell: bash
+        run: |
+          mkdir release-artifact
+          tarball="$(npm pack ./cli --pack-destination release-artifact --silent)"
+          echo "tarball=release-artifact/$tarball" >> "$GITHUB_OUTPUT"
+      - name: Publish packed artifact
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${{ steps.pack.outputs.tarball }}" --access public --provenance

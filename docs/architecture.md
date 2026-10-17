@@ -26,4 +26,4 @@ Repository access comes from the active coding session. A private checkout must 
 
 ## Browser prototype boundary
 
-[`src/app/App.tsx`](../src/app/App.tsx) controls hash-based views and keeps repository data in React state. [`src/app/services/api.ts`](../src/app/services/api.ts) sends `POST /api/analyze` and `POST /api/chat`; [`vite.config.ts`](../vite.config.ts) forwards `/api` to `localhost:3001` in development. No server for these endpoints is present in this repository. See [UI prototype status](ui-prototype.md) for what can be run locally.
+[`src/app/App.tsx`](../src/app/App.tsx) controls hash-based views and keeps repository data in React state. [`src/app/services/api.ts`](../src/app/services/api.ts) sends `POST /api/analyze` and `POST /api/chat`; [`vite.config.ts`](../vite.config.ts) forwards `/api` to `localhost:3001` in development. No server for these endpoints is present in this repository. See [Prototype status](prototype-status.md) for what can be run locally.

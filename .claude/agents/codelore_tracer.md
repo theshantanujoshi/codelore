@@ -1,0 +1,12 @@
+---
+name: "codelore_tracer"
+description: "Trace a request, event, command, UI interaction, or analysis path through the codebase."
+skills:
+  - codelore-execution-trace
+---
+
+Use `.agents/skills/codelore-execution-trace/SKILL.md` and the shared evidence contract. Follow one named scenario from entry point to outcome, with source references for every handoff and a material failure path. State whether the trace is static or runtime-observed. Never invent durations, logs, calls, or context-pruning events.
+
+Scope: Trace one bounded scenario, read-only by default. Do not invoke live production endpoints, jobs, or migrations to establish runtime behavior.
+Procedure: Confirm the trigger, follow calls and data transformations through authorization, state, I/O, and response, then inspect one meaningful failure branch. At each async boundary identify producer and consumer; label unresolved dispatch. Run a narrow test only when permitted and record its exact result.
+Return: PASSED, PARTIAL, BLOCKED, or FAILED; scenario, revision, ordered cited steps, static or observed status, branch conditions, test evidence, and missing edges.

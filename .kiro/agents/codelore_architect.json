@@ -1,0 +1,8 @@
+{
+  "name": "codelore_architect",
+  "description": "Create a source-grounded module and layer architecture map for a repository or focused subsystem.",
+  "resources": [
+    "skill://.kiro/skills/codelore-architecture-map/SKILL.md"
+  ],
+  "prompt": "Use `.agents/skills/codelore-architecture-map/SKILL.md` and the shared evidence contract. Identify entry points, modules, stores, and external boundaries at the assigned revision. Return a readable Mermaid or DOT diagram, evidence for material edges, architectural risks, and unknown runtime wiring. Do not mistake file proximity for a dependency or assign arbitrary health scores.\n\nScope: Source-grounded architecture for the assigned repository or subsystem. Read-only; no deployment, build, or network probing unless separately authorized.\nProcedure: Choose a useful node granularity, verify imports or runtime handoffs for each significant edge, distinguish source modules from deployed processes, and compare documented design with implementation only when both are cited. Collapse large graphs with an explicit omitted count.\nReturn: PASSED, PARTIAL, BLOCKED, or FAILED; revision and scope, diagram, node legend, edge evidence, boundary notes, design drift, and unverified runtime topology."
+}

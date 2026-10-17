@@ -8,14 +8,18 @@ python scripts/install-codelore.py D:\path\to\target-repo
 
 The installer requires Python 3.11 or later, copies all supported harness profiles by default, skips identical files, and refuses to overwrite differing files. To install a smaller set, repeat `--harness NAME`; for example, `--harness claude --harness gemini`. It does not install a harness or grant repository access. Run the command from this Codelore checkout, then open the target checkout in your coding harness.
 
-The [Node CLI package](../cli/README.md) provides the same install flow without Python. From this source checkout, prepare its bundled files and run:
+The [Node CLI package](../cli/README.md) provides the same install flow without Python. With Node.js 20 or later, run this from the target checkout:
+
+```powershell
+npx codelore-agent-suite
+```
+
+To select a specific harness or install into another directory, run `npx codelore-agent-suite init D:\path\to\target-repo --harness codex`. From a Codelore source checkout, you can instead prepare its bundled files and run:
 
 ```powershell
 npm --prefix cli run prepack
 node cli/bin/codelore.mjs init D:\path\to\target-repo --harness codex
 ```
-
-The package is prepared for `npx codelore-agent-suite` from within the target checkout after publication to npm. The source checkout alone does not make that registry command available.
 
 | Harness | Skill discovery | Agent profiles | Invoke |
 | --- | --- | --- | --- |

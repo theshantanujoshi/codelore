@@ -10,14 +10,14 @@ export default function CliInstall({ onBack }: CliInstallProps) {
 
   const steps = [
     {
-      title: "1. prepare the package",
-      desc: "from a Codelore source checkout, bundle the skills and agents for the CLI.",
-      cmd: "npm --prefix cli run prepack"
+      title: "1. open your repository",
+      desc: "run the installer in the checkout you want Codelore to review.",
+      cmd: "cd ../my-project"
     },
     {
       title: "2. install into a repository",
       desc: "copy the Codelore skills and agent profiles into an existing checkout.",
-      cmd: "node cli/bin/codelore.mjs init ../my-project"
+      cmd: "npx codelore-agent-suite"
     },
     {
       title: "3. ask your coding agent",
@@ -100,15 +100,15 @@ export default function CliInstall({ onBack }: CliInstallProps) {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               </div>
               <pre className="p-4 text-[10px] text-zinc-500 leading-relaxed overflow-x-auto whitespace-pre font-mono">
-                {`$ node cli/bin/codelore.mjs init ../my-project
-Installed Codelore files into ../my-project
+                {`$ npx codelore-agent-suite
+Installed 113 files into /path/to/my-project (113 selected files)
 Open the checkout in your coding agent and ask it to use codelore-workflow.`}
               </pre>
             </div>
           </div>
 
           <div className="mt-8 text-xs text-zinc-700 leading-relaxed">
-            {`// npm package is not published yet. After publication: npx codelore-agent-suite`}
+            {`// Node.js 20 or later required · npm package: codelore-agent-suite`}
           </div>
         </div>
       </div>

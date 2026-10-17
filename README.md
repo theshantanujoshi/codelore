@@ -8,7 +8,13 @@ The React/Vite app in this repository is the original visual prototype. Its repo
 
 ## Quick start
 
-Open this repository in a supported coding harness, or [install the project skills and agents into another checkout](docs/harness-support.md). The new Node CLI package is under [`cli/`](cli/README.md); from this source checkout, run `npm --prefix cli run prepack` and then `node cli/bin/codelore.mjs init D:\path\to\target-repo`. The package is not published yet, so `npx codelore-agent-suite` from the npm registry is not available. Make the repository you want to inspect accessible to that session, then ask:
+Open the repository you want to inspect in a supported coding harness. From that checkout, install Codelore's skills and agent profiles with Node.js 20 or later:
+
+```powershell
+npx codelore-agent-suite
+```
+
+You can also run `npx codelore-agent-suite init D:\path\to\target-repo` from another directory. See [Harness support](docs/harness-support.md) for options and [the CLI package](cli/README.md) for source and release details. Give your coding session access to the target checkout, then ask:
 
 ```text
 Use the codelore-workflow skill to review D:\path\to\target-repo at its current revision. Cover the file map, architecture, one execution trace, dependencies, health, and setup. Cite source files and state what you could not verify.

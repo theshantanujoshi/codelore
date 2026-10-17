@@ -5,7 +5,7 @@ description: "Present verified Codelore findings as diagrams, navigable file map
 
 # Visual report
 
-Read [the shared evidence contract](../codelore-workflow/references/evidence.md). This skill covers presentation from the original Codelore UI. It consumes verified findings from other skills; it does not create architectural claims from visual layout.
+Read [the shared evidence contract](../codelore-workflow/references/evidence.md). This skill presents verified findings from other skills; it does not create architectural claims from visual layout.
 
 ## When to use
 
@@ -18,7 +18,7 @@ Get the report's target and revision, cited findings, audience, required section
 ## Workflow
 
 1. Confirm target revision, audience, required sections, preferred format, and export location. For a short answer, use Markdown tables and Mermaid. For a shareable artifact, choose a standalone HTML report or static files in a user-selected directory. Do not write into source directories without authorization.
-2. Convert the verified file inventory into a navigable tree. For a graph, preserve stable repo-relative node IDs and label edge kinds: containment, import, call, and runtime handoff. Keep large graphs usable through grouping, filtering, search, and an explicit node cap. A 3D view may use the repository's existing `react-force-graph-3d` and `three.js` stack when building an artifact; show a two-dimensional list/tree fallback and reduced-motion behavior.
+2. Convert the verified file inventory into a navigable tree. For a graph, preserve stable repo-relative node IDs and label edge kinds: containment, import, call, and runtime handoff. Keep large graphs usable through grouping, filtering, search, and an explicit node cap. A 3D view should include a two-dimensional list/tree fallback and reduced-motion behavior.
 3. Show architecture and execution with distinct diagrams. A module diagram represents static relationships; a trace timeline represents one named scenario. Label static versus runtime-observed traces. Terminal-style progress may replay **actual** completed steps and command results from this run, never simulated model processing, fabricated duration, or fake context-pruning events.
 4. Present dependency and health findings as tables with units, observation dates, severity source, and links to evidence. Render score cards only when a rubric-backed score exists; otherwise use measured metrics and prioritized findings. Include onboarding steps and Q&A examples only when sourced.
 5. Check accessibility and usability: text alternatives to spatial views, keyboard navigation for controls, visible focus, sufficient contrast, and readable output without animation. Avoid embedding private source snippets or secrets in portable files; tell the user when filenames or findings expose private structure.
@@ -35,7 +35,7 @@ Verify that links, paths, diagram node IDs, and any local interaction work befor
 
 ## Guardrails and verification
 
-Do not embed private code snippets or secrets in portable HTML without explicit need and review. Do not create a file or alter the prototype app when an inline visualization meets the request. Never show demo metrics or simulated progress as current analysis. Confirm that every displayed score has the health rubric and observations behind it.
+Do not embed private code snippets or secrets in portable HTML without explicit need and review. Do not create a file when an inline visualization meets the request. Never show demo metrics or simulated progress as current analysis. Confirm that every displayed score has the health rubric and observations behind it.
 
 ## Report
 

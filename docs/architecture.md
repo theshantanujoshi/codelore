@@ -1,6 +1,6 @@
 # How the project fits together
 
-Codelore currently has two parts: a portable skill and agent suite, and a separate React/Vite visual prototype. The suite performs analysis in the active coding session. The browser app does not call the suite or render its output.
+Codelore is a portable skill and agent suite installed by the Node CLI. The suite performs analysis in the active coding session.
 
 ```mermaid
 flowchart LR
@@ -9,7 +9,6 @@ flowchart LR
     Specialists --> Checkout[Accessible target checkout]
     Specialists --> Evidence[Source references and command results]
     Evidence --> Report[Answer, diagram, or requested export]
-    Browser[React/Vite prototype] --> Missing[Expected /api/analyze and /api/chat]
 ```
 
 ## Skill and agent roles
@@ -20,10 +19,6 @@ The coordinator establishes one target and revision, sends that scope to special
 
 ## Evidence and boundaries
 
-The [shared evidence contract](../.agents/skills/codelore-workflow/references/evidence.md) requires the revision, scope, method, source references, and coverage limits. Findings distinguish observed behavior from inference and unknowns. The [health rubric](../.agents/skills/codelore-health-insights/references/scoring.md) defines when a numerical score has enough evidence; otherwise the review remains unscored. A requested export or visualization is generated from evidenced results rather than the prototype's fixture data.
+The [shared evidence contract](../.agents/skills/codelore-workflow/references/evidence.md) requires the revision, scope, method, source references, and coverage limits. Findings distinguish observed behavior from inference and unknowns. The [health rubric](../.agents/skills/codelore-health-insights/references/scoring.md) defines when a numerical score has enough evidence; otherwise the review remains unscored. A requested export or visualization is generated from evidenced results.
 
 Repository access comes from the active coding session. A private checkout must already be accessible; the suite supplies no GitHub OAuth app. Model choice and data handling come from the host. Refresh compares specified revisions; ongoing monitoring requires separately configured scheduling and delivery.
-
-## Browser prototype boundary
-
-[`src/app/App.tsx`](../src/app/App.tsx) controls hash-based views and keeps repository data in React state. [`src/app/services/api.ts`](../src/app/services/api.ts) sends `POST /api/analyze` and `POST /api/chat`; [`vite.config.ts`](../vite.config.ts) forwards `/api` to `localhost:3001` in development. No server for these endpoints is present in this repository. See [Prototype status](prototype-status.md) for what can be run locally.

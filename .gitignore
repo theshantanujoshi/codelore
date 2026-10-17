@@ -4,7 +4,6 @@ build
 .env
 .env.*
 !.env.example
-server/data/
 cli/payload/
 cli/.tmp-*/
 cli/.npm-cache/

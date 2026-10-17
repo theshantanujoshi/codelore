@@ -53,5 +53,5 @@ jobs:
           echo "tarball=release-artifact/$tarball" >> "$GITHUB_OUTPUT"
       - name: Publish packed artifact
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.CODELORE }}
         run: npm publish "${{ steps.pack.outputs.tarball }}" --access public --provenance

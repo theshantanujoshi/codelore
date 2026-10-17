@@ -34,6 +34,6 @@ The package is MIT licensed. Its `prepack` script copies the repository's `LICEN
 
 ## Release setup
 
-The manual [release workflow](../.github/workflows/cli-release.yml) verifies Node.js 20 and 24, then publishes the exact tarball it packs. It runs only from `main` and uses the `npm-release` GitHub environment. Before the first release, configure that environment with required reviewers and an `NPM_TOKEN` secret belonging to an npm account allowed to publish the package. Run the workflow with `version: 0.1.0` only after reviewing the package and approving publication. Do not publish from the working copy.
+The manual [release workflow](../.github/workflows/cli-release.yml) verifies Node.js 20 and 24, then publishes the exact tarball it packs. It runs only from `main` and uses the `npm-release` GitHub environment. Before the first release, configure that environment with required reviewers and a `CODELORE` secret containing an npm token allowed to publish the package. Run the workflow with `version: 0.1.0` only after reviewing the package and approving publication. Do not publish from the working copy.
 
 After the first version exists on npm, the owner can configure npm trusted publishing for this workflow and remove the token secret. Registry and GitHub release settings are external to this repository and are not configured by the source files alone.

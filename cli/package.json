@@ -1,7 +1,7 @@
 {
   "name": "codelore-agent-suite",
-  "version": "0.1.0",
-  "description": "Install Codelore codebase review skills and agents into a local checkout",
+  "version": "0.1.1",
+  "description": "Local-first agent skills for source-cited codebase review and repository exploration",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theshantanujoshi/codelore.git",

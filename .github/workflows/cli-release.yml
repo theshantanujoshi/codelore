@@ -1,12 +1,8 @@
 name: Release CLI package
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Version expected in cli/package.json
-        required: true
-        type: string
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -14,7 +10,6 @@ permissions:
 
 jobs:
   verify:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -41,9 +36,7 @@ jobs:
           node-version: '24'
           registry-url: https://registry.npmjs.org
       - name: Verify release version
-        env:
-          RELEASE_VERSION: ${{ inputs.version }}
-        run: node -e "const p=require('./cli/package.json'); if(p.version !== process.env.RELEASE_VERSION) throw new Error('Version does not match cli/package.json')"
+        run: test "v$(node -p "require('./cli/package.json').version")" = "$GITHUB_REF_NAME"
       - name: Pack once
         id: pack
         shell: bash

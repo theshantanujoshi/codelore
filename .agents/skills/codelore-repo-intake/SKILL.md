@@ -22,11 +22,23 @@ Read [the shared evidence contract](../codelore-workflow/references/evidence.md)
 
 Identify the checkout or URL, access method, commit and branch, dirty and untracked files, desired inclusion of tests and generated code, requested depth, and whether project commands may run. Discover these from the session and repository before asking the user.
 
+## Available scripts
+
+- **`scripts/inventory.py`** — produce a read-only inventory of the revision, file categories, extension-based language counts, physical and nonblank lines, manifests, lockfiles, entry-point candidates, exclusions, and limits. It uses Git when available and a filesystem walk otherwise, never follows symlinks, and skips likely secret files. It requires Python 3.11 or later and has no third-party dependencies.
+
+Run it from this skill directory:
+
+```powershell
+python scripts/inventory.py --path D:\path\to\target-repo --format json
+```
+
+Use `--format text` for a short summary and `--help` for limits and exit codes. The script is optional; the manual method below remains complete when Python or the script is unavailable.
+
 ## Workflow
 
 1. Identify the target and access mode: local checkout, accessible private checkout, or public URL. For a URL, use an already available repository connector or read-only checkout where permitted. Never ask for a personal access token in chat. If the repository is private and inaccessible, report the access limit rather than guessing from public metadata.
 2. Record revision, branch, remotes if relevant, worktree cleanliness, and analysis timestamp. Ask whether the user wants only committed files or the working tree if this affects the answer; otherwise state that the current working tree is included. Do not alter the checkout during intake.
-3. Enumerate source and test files with Git-aware listing when possible. Exclude `.git`, dependencies, build output, generated files, binaries, and secrets by default. Count files and text lines using a stated method; classify languages by extension or a verified language tool. For a huge tree, cap the displayed sample while keeping counts separate, and label both limits.
+3. When the bundled script is available, run it and use its measured counts, revision, exclusions, and limits as the starting inventory. Check the target path and at least one cited file before relying on the output, and carry every reported limit into the handoff. Otherwise enumerate source and test files with Git-aware listing when possible. Exclude `.git`, dependencies, build output, generated files, binaries, and secrets by default. Count files and text lines using a stated method; classify languages by extension or a verified language tool. For a huge tree, cap the displayed sample while keeping counts separate, and label both limits.
 4. Locate manifests, lockfiles, entry points, configs, CI, docs, and tests. Return a compact tree with paths, language breakdown, and a map of likely subsystems. Do not infer architecture from names alone; defer that to `codelore-architecture-map`.
 5. Capture requested settings explicitly: tests included or excluded, depth for dependency inspection, target scenario, output format, and whether execution of project commands is permitted. Pass these fields with the revision to the next specialist.
 

@@ -4,7 +4,7 @@
 
 ## About
 
-Codelore is a portable skill and agent suite for exploring a codebase. It can assemble a source-cited review of a repository or answer a focused question about its architecture, execution path, dependencies, health, and setup. The CLI installs the skills and agent profiles into a local checkout. Codelore uses the active coding session's model access and repository permissions; it does not need a separate Codelore LLM API key.
+Codelore is a portable skill and agent suite for exploring a codebase. Its 11 skills follow the Agent Skills open format, so compatible harnesses can discover them at `.agents/skills`. It can assemble a source-cited review of a repository or answer a focused question about its architecture, execution path, dependencies, health, and setup. The CLI installs the skills and agent profiles into a local checkout. Codelore uses the active coding session's model access and repository permissions; it does not need a separate Codelore LLM API key.
 
 ## Quick start
 
@@ -31,6 +31,7 @@ For a narrower task, use a specialist skill such as `codelore-codebase-qa` or `c
 ## Documentation
 
 - [Using Codelore](docs/using-codelore.md) — choose a workflow and interpret its results.
+- [Agent Skills conformance](docs/agent-skills.md) — frontmatter, progressive disclosure, bundled scripts, and validation.
 - [Harness support](docs/harness-support.md) — discovery paths, agent profiles, and invocation examples.
 - [Kit authoring](docs/kit-authoring.md) — canonical content rules, reference provenance, and validation.
 - [How the project fits together](docs/architecture.md) — skill/agent roles, evidence flow, and boundaries.

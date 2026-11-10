@@ -1,6 +1,6 @@
 # Using Codelore
 
-Use these project skills from a [supported coding harness](harness-support.md) opened on the Codelore repository. Give the session access to a local checkout of the target repository, or a public repository URL it can fetch. Private repositories require access already granted to the active session. Your coding harness controls model access; there is no Codelore API key to configure.
+Use these project skills from a [supported coding harness](harness-support.md) opened on the Codelore repository. The canonical skills follow the [Agent Skills open format](agent-skills.md), so a harness that discovers `.agents/skills` can load them without conversion. Give the session access to a local checkout of the target repository, or a public repository URL it can fetch. Private repositories require access already granted to the active session. Your coding harness controls model access; there is no Codelore API key to configure.
 
 ## Review a repository
 

@@ -1,6 +1,6 @@
 # Harness support
 
-Codelore keeps its 11 complete skills and reference files in [`.agents/skills`](../.agents/skills). Native agent profiles point to those files. Open this repository as the harness workspace and give the session access to the target checkout. To use Codelore directly inside another checkout, install the project files there:
+Codelore keeps its 11 complete skills and reference files in [`.agents/skills`](../.agents/skills). The canonical skills follow the Agent Skills open format; see [Agent Skills conformance](agent-skills.md) for the frontmatter and loading model. Native agent profiles point to those files. Open this repository as the harness workspace and give the session access to the target checkout. To use Codelore directly inside another checkout, install the project files there:
 
 ```powershell
 python scripts/install-codelore.py D:\path\to\target-repo
@@ -50,9 +50,11 @@ python scripts/validate-codelore-kit.py
 python scripts/test-install-codelore.py
 ```
 
-The [generator](../scripts/generate-harness-adapters.py) creates Claude and Kiro skill shims and 11 agent profiles for each of Claude Code, Cursor, Gemini CLI, GitHub Copilot, OpenCode, and Kiro. `--check` reports missing or stale generated files without writing. Review the generated files before committing them. The generator does not install a harness or validate that a specific installed version discovers the files.
+The [generator](../scripts/generate-harness-adapters.py) creates Claude and Kiro skill shims and 11 agent profiles for each of Claude Code, Cursor, Gemini CLI, GitHub Copilot, OpenCode, and Kiro. Each shim copies the canonical Agent Skills frontmatter so it remains a valid skill document, then points at the canonical `SKILL.md`. `--check` reports missing or stale generated files without writing. Review the generated files before committing them. The generator does not install a harness or validate that a specific installed version discovers the files.
 
 ## Format sources
+
+The canonical skills follow the Agent Skills specification and best practices. Codelore's own conformance notes are in [Agent Skills conformance](agent-skills.md).
 
 Kiro formats follow [Kiro skills](https://kiro.dev/docs/skills/) and [custom agents](https://kiro.dev/docs/custom-agents/).
 

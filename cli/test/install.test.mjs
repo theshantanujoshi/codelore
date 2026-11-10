@@ -20,6 +20,7 @@ test('installs all profiles and is idempotent', async () => withTarget(async tar
   assert.ok(first.copied > 11);
   for (const file of [
     '.agents/skills/codelore-workflow/SKILL.md',
+    '.agents/skills/codelore-repo-intake/scripts/inventory.py',
     '.codex/agents/codelore_coordinator.toml',
     '.claude/agents/codelore_coordinator.md',
     '.kiro/skills/codelore-workflow/SKILL.md',

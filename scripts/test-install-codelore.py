@@ -34,6 +34,7 @@ class InstallCodeloreTest(unittest.TestCase):
         self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
         for path in (
             ".agents/skills/codelore-workflow/SKILL.md",
+            ".agents/skills/codelore-repo-intake/scripts/inventory.py",
             ".codex/agents/codelore_coordinator.toml",
             ".claude/agents/codelore_coordinator.md",
             ".claude/skills/codelore-workflow/SKILL.md",

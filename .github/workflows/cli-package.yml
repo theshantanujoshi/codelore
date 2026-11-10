@@ -12,6 +12,7 @@ on:
       - .github/agents/**
       - .opencode/**
       - .kiro/**
+      - scripts/**
       - .github/workflows/cli-package.yml
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - .github/agents/**
       - .opencode/**
       - .kiro/**
+      - scripts/**
       - .github/workflows/cli-package.yml
 
 jobs:
@@ -38,5 +40,6 @@ jobs:
         with:
           python-version: '3.11'
       - run: python scripts/validate-codelore-kit.py
+      - run: python scripts/test-install-codelore.py
       - run: npm --prefix cli test
       - run: npm pack ./cli --dry-run

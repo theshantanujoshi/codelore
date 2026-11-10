@@ -44,11 +44,10 @@ def adapter_content(agent: dict[str, str], harness: str, skill_name: str) -> str
     return "\n".join(frontmatter) + "\n\n" + instructions + "\n"
 
 
-def claude_skill_content(skill_name: str, description: str) -> str:
+def claude_skill_content(skill_name: str, frontmatter: str) -> str:
     return (
         "---\n"
-        f"name: {yaml_string(skill_name)}\n"
-        f"description: {yaml_string(description)}\n"
+        f"{frontmatter}\n"
         "---\n\n"
         f"Read `.agents/skills/{skill_name}/SKILL.md` from the repository root "
         "and follow that canonical skill. Resolve its relative reference links "
@@ -65,27 +64,27 @@ def kiro_agent_content(agent: dict[str, str], skill_name: str) -> str:
     }, ensure_ascii=False, indent=2) + "\n"
 
 
-def skill_metadata(path: Path) -> tuple[str, str]:
+def skill_metadata(path: Path) -> tuple[str, str, str]:
     content = path.read_text(encoding="utf-8-sig")
     if not content.startswith("---\n"):
         raise ValueError(f"Missing YAML frontmatter: {path}")
     end = content.find("\n---\n", 4)
     if end < 0:
         raise ValueError(f"Unclosed YAML frontmatter: {path}")
-    header = content[4:end]
+    header = content[4:end].replace("\r\n", "\n").strip()
     fields = dict(re.findall(r"^(name|description):\s*(.+)$", header, re.MULTILINE))
     name = fields.get("name", "").strip().strip('"')
     description = fields.get("description", "").strip().strip('"')
     if not name or not description or name != path.parent.name:
         raise ValueError(f"Invalid skill name or description: {path}")
-    return name, description
+    return name, description, header
 
 
 def expected_files() -> dict[Path, str]:
     result: dict[Path, str] = {}
     skills = {
-        name: description
-        for name, description in (
+        name: (description, frontmatter)
+        for name, description, frontmatter in (
             skill_metadata(path) for path in sorted(SKILLS.glob("*/SKILL.md"))
         )
     }
@@ -108,9 +107,9 @@ def expected_files() -> dict[Path, str]:
                 result[directory / f"{name}{suffix}"] = adapter_content(agent, harness, skill_name)
     if len(result) != len(PROFILE_DIRS) * len(skills):
         raise ValueError("Expected one agent per skill and harness")
-    for name, description in skills.items():
-        result[ROOT / ".claude" / "skills" / name / "SKILL.md"] = claude_skill_content(name, description)
-        result[ROOT / ".kiro" / "skills" / name / "SKILL.md"] = claude_skill_content(name, description)
+    for name, (_description, frontmatter) in skills.items():
+        result[ROOT / ".claude" / "skills" / name / "SKILL.md"] = claude_skill_content(name, frontmatter)
+        result[ROOT / ".kiro" / "skills" / name / "SKILL.md"] = claude_skill_content(name, frontmatter)
     return result
 
 

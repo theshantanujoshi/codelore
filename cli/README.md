@@ -1,6 +1,6 @@
 # Codelore agent suite CLI
 
-This package installs Codelore's canonical skills and agent profiles into an existing local repository. It does not perform an analysis itself. Open the target in a supported coding harness and ask for `codelore-workflow` after installation.
+This package installs Codelore's canonical skills and agent profiles into an existing local repository. The skills follow the Agent Skills open format, so compatible harnesses discover them at `.agents/skills`; optional reference files and the `codelore-repo-intake` inventory script are installed alongside them. The package does not perform an analysis itself. Open the target in a supported coding harness and ask for `codelore-workflow` after installation.
 
 ## Install with npx
 
@@ -32,7 +32,7 @@ npm --prefix cli test
 npm pack ./cli --dry-run
 ```
 
-The package contains the executable and a generated copy of canonical skills and profiles. `prepack` refreshes that copy for each tarball. It has no runtime dependencies. Its CLI command is `codelore-agent-suite [init [target] [--harness NAME ...]]`; with no arguments it installs into the current directory.
+The package contains the executable and a generated copy of canonical skills and profiles, including skill reference files and bundled scripts. `prepack` refreshes that copy for each tarball. It has no runtime dependencies. Its CLI command is `codelore-agent-suite [init [target] [--harness NAME ...]]`; with no arguments it installs into the current directory.
 
 The package is MIT licensed. Its `prepack` script copies the repository's `LICENSE` into the package before packing, so the published artifact includes the same terms.
 

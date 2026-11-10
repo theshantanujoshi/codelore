@@ -1,6 +1,11 @@
 ---
 name: codelore-execution-trace
 description: "Trace one repository request, command, event, or UI action from trigger through state, data, and external boundaries to the result. Use for execution-flow and data-movement questions. Not for a static module map; use the architecture skill."
+license: MIT
+metadata:
+  author: Codelore
+  version: "0.2.0"
+  standard: "agent-skills"
 ---
 
 # Execution trace

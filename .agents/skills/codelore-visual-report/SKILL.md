@@ -1,6 +1,11 @@
 ---
 name: codelore-visual-report
 description: "Present verified Codelore findings as diagrams, navigable file maps, trace timelines, tables, or an optional interactive local report. Use for visual or shareable output requests. Not for gathering architecture or health facts; use the relevant analysis skill first."
+license: MIT
+metadata:
+  author: Codelore
+  version: "0.2.0"
+  standard: "agent-skills"
 ---
 
 # Visual report

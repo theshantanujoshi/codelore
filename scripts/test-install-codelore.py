@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -21,7 +23,16 @@ class InstallCodeloreTest(unittest.TestCase):
         self.assertTrue(self.target.is_relative_to(ROOT.resolve()))
 
     def tearDown(self) -> None:
-        self.temporary.cleanup()
+        # Windows can briefly hold fixture files after the installer exits.
+        for attempt in range(10):
+            try:
+                self.temporary.cleanup()
+                return
+            except PermissionError:
+                if attempt == 9:
+                    shutil.rmtree(self.temporary.name, ignore_errors=True)
+                    return
+                time.sleep(0.1)
 
     def install(self, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
